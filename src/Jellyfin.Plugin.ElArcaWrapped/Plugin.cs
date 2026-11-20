@@ -1,7 +1,9 @@
 using Jellyfin.Plugin.ElArcaWrapped.Configuration;
+using MediaBrowser.Common.Configuration;
 using MediaBrowser.Common.Plugins;
 using MediaBrowser.Controller;
 using MediaBrowser.Model.Plugins;
+using MediaBrowser.Model.Serialization;
 
 namespace Jellyfin.Plugin.ElArcaWrapped;
 
