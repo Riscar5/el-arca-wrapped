@@ -1,0 +1,10 @@
+{
+  "guid": "00000000-0000-0000-0000-000000000000",
+  "name": "El Arca Wrapped",
+  "description": "Personalized annual viewing recaps for Jellyfin users.",
+  "overview": "Create individual annual viewing recaps with statistics and standalone HTML exports.",
+  "owner": "Riscar5",
+  "category": "General",
+  "imageUrl": "",
+  "versions": []
+}
