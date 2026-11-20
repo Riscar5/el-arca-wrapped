@@ -10,14 +10,14 @@
             <div class="content-primary">
                 <h2>El Arca Wrapped</h2>
                 <p>Resumen anual y privado de la actividad de visionado de cada usuario.</p>
-                <p><strong>Estado de desarrollo:</strong> la captura de reproducciones y la generación de informes todavía no están activas. Mantén el seguimiento desactivado hasta que publiquemos una versión lista para pruebas.</p>
+                <p><strong>Estado de desarrollo:</strong> la captura de reproducciones está implementada en esta versión de desarrollo, pero todavía debe validarse en un servidor real. Actívala solo cuando quieras comenzar a registrar actividad desde ese momento.</p>
                 <form id="ElArcaWrappedConfigForm">
                     <div class="checkboxContainer checkboxContainer-withDescription">
                         <label class="emby-checkbox-label">
                             <input id="TrackingEnabled" name="TrackingEnabled" type="checkbox" is="emby-checkbox" />
-                            <span>Activar captura de actividad (reservado para una versión futura)</span>
+                            <span>Activar captura de actividad</span>
                         </label>
-                        <div class="fieldDescription">Actualmente no inicia ninguna captura. Se recomienda dejarlo desactivado.</div>
+                        <div class="fieldDescription">Al activarla, se guardarán localmente los eventos de reproducción recibidos por Jellyfin. No recupera actividad anterior a su instalación.</div>
                     </div>
                     <div class="inputContainer">
                         <label class="inputLabel inputLabelUnfocused" for="StaleSessionDays">Días para considerar obsoleta una sesión incompleta</label>
