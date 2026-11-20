@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>El Arca Wrapped</title>
+</head>
+<body>
+    <div id="ElArcaWrappedConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-checkbox">
+        <div data-role="content">
+            <div class="content-primary">
+                <h2>El Arca Wrapped</h2>
+                <p>Resumen anual y privado de la actividad de visionado de cada usuario.</p>
+                <p><strong>Estado de desarrollo:</strong> la captura de reproducciones y la generación de informes todavía no están activas. Mantén el seguimiento desactivado hasta que publiquemos una versión lista para pruebas.</p>
+                <form id="ElArcaWrappedConfigForm">
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="TrackingEnabled" name="TrackingEnabled" type="checkbox" is="emby-checkbox" />
+                            <span>Activar captura de actividad (reservado para una versión futura)</span>
+                        </label>
+                        <div class="fieldDescription">Actualmente no inicia ninguna captura. Se recomienda dejarlo desactivado.</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="StaleSessionDays">Días para considerar obsoleta una sesión incompleta</label>
+                        <input id="StaleSessionDays" name="StaleSessionDays" type="number" is="emby-input" min="1" max="30" />
+                    </div>
+                    <button is="emby-button" type="submit" class="raised button-submit block emby-button">
+                        <span>Guardar</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <script type="text/javascript">
+            const ElArcaWrappedConfig = {
+                pluginUniqueId: '9f5b2d8e-4c31-4a76-9d12-6b8e0f3a51c7'
+            };
+
+            document.querySelector('#ElArcaWrappedConfigPage')
+                .addEventListener('pageshow', function () {
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(ElArcaWrappedConfig.pluginUniqueId).then(function (config) {
+                        document.querySelector('#TrackingEnabled').checked = config.TrackingEnabled === true;
+                        document.querySelector('#StaleSessionDays').value = config.StaleSessionDays ?? 2;
+                        Dashboard.hideLoadingMsg();
+                    });
+                });
+
+            document.querySelector('#ElArcaWrappedConfigForm')
+                .addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(ElArcaWrappedConfig.pluginUniqueId).then(function (config) {
+                        config.TrackingEnabled = document.querySelector('#TrackingEnabled').checked;
+                        config.StaleSessionDays = Math.min(30, Math.max(1, Number(document.querySelector('#StaleSessionDays').value) || 2));
+                        return ApiClient.updatePluginConfiguration(ElArcaWrappedConfig.pluginUniqueId, config);
+                    }).then(function (result) {
+                        Dashboard.processPluginConfigurationUpdateResult(result);
+                    });
+                    return false;
+                });
+        </script>
+    </div>
+</body>
+</html>
