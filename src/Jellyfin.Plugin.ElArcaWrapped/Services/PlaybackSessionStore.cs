@@ -44,8 +44,10 @@ public sealed class PlaybackSessionStore
 
         if (string.IsNullOrWhiteSpace(playSessionId))
         {
-            // Do not merge unrelated sessions when Jellyfin supplies no session identifier.
-            playSessionId = Guid.NewGuid().ToString("N");
+            // Keep progress updates together if a client omits Jellyfin's play-session identifier.
+            // The per-user unique key still keeps shared playback data separated by account.
+            var clientKey = eventArgs.DeviceId ?? eventArgs.DeviceName ?? eventArgs.ClientName ?? "unknown-client";
+            playSessionId = $"fallback:{clientKey}:{item.Id:N}";
         }
 
         await EnsureDatabaseAsync().ConfigureAwait(false);
