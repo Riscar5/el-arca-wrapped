@@ -10,20 +10,28 @@ namespace Jellyfin.Plugin.ElArcaWrapped.Services;
 public sealed class PlaybackSessionStore
 {
     private readonly string _connectionString;
+    private readonly string _databasePath;
     private readonly SemaphoreSlim _initializationLock = new(1, 1);
     private bool _initialized;
 
     public PlaybackSessionStore(IApplicationPaths applicationPaths)
+        : this(Path.Combine(applicationPaths.DataPath, "el-arca-wrapped", "playback-sessions.db"))
     {
-        var dataDirectory = Path.Combine(applicationPaths.DataPath, "el-arca-wrapped");
-        Directory.CreateDirectory(dataDirectory);
+    }
+
+    internal PlaybackSessionStore(string databasePath)
+    {
+        _databasePath = Path.GetFullPath(databasePath);
+        Directory.CreateDirectory(Path.GetDirectoryName(_databasePath)!);
         _connectionString = new SqliteConnectionStringBuilder
         {
-            DataSource = Path.Combine(dataDirectory, "playback-sessions.db"),
+            DataSource = _databasePath,
             Mode = SqliteOpenMode.ReadWriteCreate,
             Cache = SqliteCacheMode.Shared
         }.ToString();
     }
+
+    internal string DatabasePath => _databasePath;
 
     public async Task RecordAsync(
         PlaybackProgressEventArgs eventArgs,
@@ -44,8 +52,8 @@ public sealed class PlaybackSessionStore
 
         if (string.IsNullOrWhiteSpace(playSessionId))
         {
-            // Keep progress updates together if a client omits Jellyfin's play-session identifier.
-            // The per-user unique key still keeps shared playback data separated by account.
+            // Keep progress updates grouped if a client omits Jellyfin's play-session identifier.
+            // This fallback is intentionally best-effort and can merge repeated plays on the same device.
             var clientKey = eventArgs.DeviceId ?? eventArgs.DeviceName ?? eventArgs.ClientName ?? "unknown-client";
             playSessionId = $"fallback:{clientKey}:{item.Id:N}";
         }
@@ -54,10 +62,12 @@ public sealed class PlaybackSessionStore
 
         await using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync().ConfigureAwait(false);
+        await using var transaction = await connection.BeginTransactionAsync().ConfigureAwait(false);
 
         foreach (var user in eventArgs.Users)
         {
             await using var command = connection.CreateCommand();
+            command.Transaction = (SqliteTransaction)transaction;
             command.CommandText = """
                 INSERT INTO PlaybackSessions (
                     PlaySessionId, UserId, Username, ItemId, ItemName, ItemType,
@@ -105,9 +115,11 @@ public sealed class PlaybackSessionStore
             command.Parameters.AddWithValue("$deviceId", eventArgs.DeviceId ?? string.Empty);
             await command.ExecuteNonQueryAsync().ConfigureAwait(false);
         }
+
+        await transaction.CommitAsync().ConfigureAwait(false);
     }
 
-    private async Task EnsureDatabaseAsync()
+    internal async Task EnsureDatabaseAsync()
     {
         if (_initialized)
         {
