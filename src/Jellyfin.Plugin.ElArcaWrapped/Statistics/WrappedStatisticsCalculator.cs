@@ -15,8 +15,8 @@ public static class WrappedStatisticsCalculator
         // Enforce user isolation here even when the caller has already filtered the database query.
         var records = source
             .Where(r => string.Equals(r.UserId, userId, StringComparison.Ordinal))
-            .Where(r => r.StartedAtUtc.Year == year)
-            .OrderBy(r => r.StartedAtUtc)
+            .Where(r => r.StartedAtUtc.UtcDateTime.Year == year)
+            .OrderBy(r => r.StartedAtUtc.UtcDateTime)
             .ToArray();
 
         var indexed = records.Select((record, index) =>
@@ -27,19 +27,19 @@ public static class WrappedStatisticsCalculator
 
         var monthly = Enumerable.Range(1, 12).Select(month =>
         {
-            var items = indexed.Where(item => item.Record.StartedAtUtc.Month == month).ToArray();
+            var items = indexed.Where(item => item.Record.StartedAtUtc.UtcDateTime.Month == month).ToArray();
             return new MonthlyActivity(month, items.Length, items.Sum(item => item.Minutes));
         }).ToArray();
 
         var hourly = Enumerable.Range(0, 24).Select(hour =>
         {
-            var items = indexed.Where(item => item.Record.StartedAtUtc.Hour == hour).ToArray();
+            var items = indexed.Where(item => item.Record.StartedAtUtc.UtcDateTime.Hour == hour).ToArray();
             return new HourlyActivity(hour, items.Length, items.Sum(item => item.Minutes));
         }).ToArray();
 
         var weekdays = Enum.GetValues<DayOfWeek>().Select(day =>
         {
-            var items = indexed.Where(item => item.Record.StartedAtUtc.DayOfWeek == day).ToArray();
+            var items = indexed.Where(item => item.Record.StartedAtUtc.UtcDateTime.DayOfWeek == day).ToArray();
             return new WeekdayActivity(day, items.Length, items.Sum(item => item.Minutes));
         }).ToArray();
 
@@ -64,11 +64,11 @@ public static class WrappedStatisticsCalculator
             .Select(pair => new GenreActivity(pair.Key, pair.Value.Plays, pair.Value.Minutes))
             .ToArray();
 
-        var activeDates = records.Select(r => r.StartedAtUtc.Date).Distinct().Order().ToArray();
+        var activeDates = records.Select(r => r.StartedAtUtc.UtcDateTime.Date).Distinct().Order().ToArray();
         var distinctItems = records.Select(r => r.ItemId).Distinct(StringComparer.Ordinal).Count();
         var totalMinutes = minutes.Sum();
         var completed = records.Count(r => r.PlayedToCompletion);
-        var longestDay = indexed.GroupBy(item => item.Record.StartedAtUtc.Date)
+        var longestDay = indexed.GroupBy(item => item.Record.StartedAtUtc.UtcDateTime.Date)
             .Select(group => group.Sum(item => item.Minutes))
             .DefaultIfEmpty(0)
             .Max();
