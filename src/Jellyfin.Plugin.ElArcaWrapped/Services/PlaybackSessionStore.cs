@@ -72,13 +72,13 @@ public sealed class PlaybackSessionStore
                 INSERT INTO PlaybackSessions (
                     PlaySessionId, UserId, Username, ItemId, ItemName, ItemType,
                     StartedAtUtc, LastEventAtUtc, EndedAtUtc, LastPositionTicks,
-                    RuntimeTicks, GenresJson, SeriesName, ProductionYear, SeasonNumber, EpisodeNumber, PrimaryImagePath, IsPaused, PlayedToCompletion, ClientName,
+                    RuntimeTicks, WatchedTicks, GenresJson, SeriesName, ProductionYear, SeasonNumber, EpisodeNumber, PrimaryImagePath, IsPaused, PlayedToCompletion, ClientName,
                     DeviceName, DeviceId
                 )
                 VALUES (
                     $playSessionId, $userId, $username, $itemId, $itemName, $itemType,
                     $now, $now, $endedAt, $positionTicks,
-                    $runtimeTicks, $genresJson, $seriesName, $productionYear, $seasonNumber, $episodeNumber, $primaryImagePath, $isPaused, $completed, $clientName,
+                    $runtimeTicks, $watchedTicks, $genresJson, $seriesName, $productionYear, $seasonNumber, $episodeNumber, $primaryImagePath, $isPaused, $completed, $clientName,
                     $deviceName, $deviceId
                 )
                 ON CONFLICT(PlaySessionId, UserId) DO UPDATE SET
@@ -90,6 +90,7 @@ public sealed class PlaybackSessionStore
                     EndedAtUtc = COALESCE(excluded.EndedAtUtc, PlaybackSessions.EndedAtUtc),
                     LastPositionTicks = COALESCE(excluded.LastPositionTicks, PlaybackSessions.LastPositionTicks),
                     RuntimeTicks = COALESCE(excluded.RuntimeTicks, PlaybackSessions.RuntimeTicks),
+                    WatchedTicks = COALESCE(PlaybackSessions.WatchedTicks, 0) + $watchedDeltaTicks,
                     GenresJson = excluded.GenresJson,
                     SeriesName = COALESCE(excluded.SeriesName, PlaybackSessions.SeriesName),
                     ProductionYear = COALESCE(excluded.ProductionYear, PlaybackSessions.ProductionYear),
@@ -103,7 +104,34 @@ public sealed class PlaybackSessionStore
                     DeviceId = excluded.DeviceId;
                 """;
 
-            var now = DateTimeOffset.UtcNow.ToString("O");
+            var nowOffset = DateTimeOffset.UtcNow;
+            var now = nowOffset.ToString("O");
+            long watchedDeltaTicks = 0;
+            await using (var previous = connection.CreateCommand())
+            {
+                previous.Transaction = (SqliteTransaction)transaction;
+                previous.CommandText = """
+                    SELECT LastEventAtUtc, LastPositionTicks, IsPaused
+                    FROM PlaybackSessions
+                    WHERE PlaySessionId = $playSessionId AND UserId = $userId;
+                    """;
+                previous.Parameters.AddWithValue("$playSessionId", playSessionId);
+                previous.Parameters.AddWithValue("$userId", user.Id.ToString("N"));
+                await using var previousReader = await previous.ExecuteReaderAsync().ConfigureAwait(false);
+                if (await previousReader.ReadAsync().ConfigureAwait(false) &&
+                    !previousReader.IsDBNull(1) &&
+                    !previousReader.GetBoolean(2) &&
+                    !eventArgs.IsPaused &&
+                    eventArgs.PlaybackPositionTicks is long currentPosition &&
+                    currentPosition > previousReader.GetInt64(1))
+                {
+                    var previousAt = DateTimeOffset.Parse(
+                        previousReader.GetString(0),
+                        System.Globalization.CultureInfo.InvariantCulture);
+                    var elapsedTicks = Math.Max(0, (nowOffset - previousAt).Ticks);
+                    watchedDeltaTicks = Math.Min(currentPosition - previousReader.GetInt64(1), elapsedTicks);
+                }
+            }
             command.Parameters.AddWithValue("$playSessionId", playSessionId);
             command.Parameters.AddWithValue("$userId", user.Id.ToString("N"));
             command.Parameters.AddWithValue("$username", user.Username ?? string.Empty);
@@ -114,6 +142,7 @@ public sealed class PlaybackSessionStore
             command.Parameters.AddWithValue("$endedAt", isStopped ? now : DBNull.Value);
             command.Parameters.AddWithValue("$positionTicks", eventArgs.PlaybackPositionTicks is long position ? position : DBNull.Value);
             command.Parameters.AddWithValue("$runtimeTicks", item.RunTimeTicks is long runtime ? runtime : DBNull.Value);
+            command.Parameters.AddWithValue("$watchedTicks", watchedDeltaTicks);
             command.Parameters.AddWithValue("$genresJson", System.Text.Json.JsonSerializer.Serialize(item.Genres ?? Array.Empty<string>()));
             command.Parameters.AddWithValue("$seriesName", DBNull.Value);
             command.Parameters.AddWithValue("$productionYear", item.ProductionYear ?? (object)DBNull.Value);
@@ -144,7 +173,7 @@ public sealed class PlaybackSessionStore
         await using var command = connection.CreateCommand();
         command.CommandText = """
             SELECT UserId, ItemId, ItemName, ItemType, StartedAtUtc, EndedAtUtc,
-                   RuntimeTicks, PlayedToCompletion, GenresJson, SeriesName, ProductionYear,
+                   RuntimeTicks, WatchedTicks, PlayedToCompletion, GenresJson, SeriesName, ProductionYear,
                    SeasonNumber, EpisodeNumber, PrimaryImagePath
             FROM PlaybackSessions
             WHERE UserId = $userId
@@ -169,14 +198,15 @@ public sealed class PlaybackSessionStore
                 RuntimeTicks = reader.IsDBNull(6) ? null : reader.GetInt64(6),
                 // Position is not watched duration. The calculator uses elapsed time as a capped fallback.
                 WatchedTicks = null,
-                PlayedToCompletion = reader.GetBoolean(7),
-                Genres = reader.IsDBNull(8) ? Array.Empty<string>() :
-                    System.Text.Json.JsonSerializer.Deserialize<string[]>(reader.GetString(8)) ?? Array.Empty<string>(),
-                SeriesName = reader.IsDBNull(9) ? null : reader.GetString(9),
-                ProductionYear = reader.IsDBNull(10) ? null : reader.GetInt32(10),
-                SeasonNumber = reader.IsDBNull(11) ? null : reader.GetInt32(11),
-                EpisodeNumber = reader.IsDBNull(12) ? null : reader.GetInt32(12),
-                PrimaryImagePath = reader.IsDBNull(13) ? null : reader.GetString(13)
+                WatchedTicks = reader.IsDBNull(7) ? null : reader.GetInt64(7),
+                PlayedToCompletion = reader.GetBoolean(8),
+                Genres = reader.IsDBNull(9) ? Array.Empty<string>() :
+                    System.Text.Json.JsonSerializer.Deserialize<string[]>(reader.GetString(9)) ?? Array.Empty<string>(),
+                SeriesName = reader.IsDBNull(10) ? null : reader.GetString(10),
+                ProductionYear = reader.IsDBNull(11) ? null : reader.GetInt32(11),
+                SeasonNumber = reader.IsDBNull(12) ? null : reader.GetInt32(12),
+                EpisodeNumber = reader.IsDBNull(13) ? null : reader.GetInt32(13),
+                PrimaryImagePath = reader.IsDBNull(14) ? null : reader.GetString(14)
             });
         }
         return records;
@@ -230,6 +260,7 @@ public sealed class PlaybackSessionStore
                     EndedAtUtc TEXT NULL,
                     LastPositionTicks INTEGER NULL,
                     RuntimeTicks INTEGER NULL,
+                    WatchedTicks INTEGER NULL,
                     GenresJson TEXT NOT NULL DEFAULT '[]',
                     SeriesName TEXT NULL,
                     ProductionYear INTEGER NULL,
@@ -247,6 +278,7 @@ public sealed class PlaybackSessionStore
                     ON PlaybackSessions (UserId, StartedAtUtc);
                 """;
             await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+            await EnsureColumnAsync(connection, "WatchedTicks", "INTEGER NULL").ConfigureAwait(false);
             await EnsureColumnAsync(connection, "GenresJson", "TEXT NOT NULL DEFAULT '[]'").ConfigureAwait(false);
             await EnsureColumnAsync(connection, "SeriesName", "TEXT NULL").ConfigureAwait(false);
             await EnsureColumnAsync(connection, "ProductionYear", "INTEGER NULL").ConfigureAwait(false);
