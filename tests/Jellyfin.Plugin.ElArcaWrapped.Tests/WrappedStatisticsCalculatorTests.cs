@@ -47,6 +47,12 @@ public sealed class WrappedStatisticsCalculatorTests
         Assert.Equal(85, result.TopSeries[0].MinutesWatched, 1);
         Assert.Equal(100, Assert.Single(result.TopMovies).MinutesWatched, 1);
         Assert.Equal("Drama", result.TopGenres[0].Genre);
+        Assert.Equal(185d / 3, result.AverageMinutesPerPlay, 1);
+        Assert.Equal(0, result.RepeatPlays);
+        Assert.Equal(100, result.CompletionRatePercent, 1);
+        Assert.Equal(100, result.LongestViewingDayMinutes, 1);
+        Assert.Equal(1, result.HourlyActivityUtc[0].Plays);
+        Assert.Equal(1, result.WeekdayActivityUtc[(int)DayOfWeek.Thursday].Plays);
     }
 
     [Fact]
@@ -69,6 +75,11 @@ public sealed class WrappedStatisticsCalculatorTests
         Assert.Equal(0, result.TotalMinutesWatched);
         Assert.Equal(0, result.LongestStreakDays);
         Assert.Equal(12, result.MonthlyActivity.Count);
+        Assert.Equal(24, result.HourlyActivityUtc.Count);
+        Assert.Equal(7, result.WeekdayActivityUtc.Count);
+        Assert.Equal(0, result.AverageMinutesPerPlay);
+        Assert.Equal(0, result.CompletionRatePercent);
+        Assert.Equal(0, result.LongestViewingDayMinutes);
     }
 
     [Fact]
@@ -84,5 +95,7 @@ public sealed class WrappedStatisticsCalculatorTests
         Assert.Equal(2, Assert.Single(result.TopMovies).Plays);
         Assert.Equal(2, result.ActiveDays);
         Assert.Equal(1, result.LongestStreakDays);
+        Assert.Equal(1, result.RepeatPlays);
+        Assert.Equal(60, result.LongestViewingDayMinutes, 1);
     }
 }
