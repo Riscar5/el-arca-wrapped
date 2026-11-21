@@ -24,7 +24,7 @@ public sealed class WrappedStatisticsCalculatorTests
     {
         var records = new[]
         {
-            Record("u1", "m1", "Film A", "Movie", new DateTime(2026, 1, 1), 100, genres: ["Drama"]),
+            Record("u1", "m1", "Film A", "Movie", new DateTime(2026, 1, 1), 100, genres: ["Drama"]) with { PlayedToCompletion = true },
             Record("u1", "e1", "Episode 1", "Episode", new DateTime(2026, 1, 2), 40, "Serie X", "Drama", "Comedy"),
             Record("u1", "e2", "Episode 2", "Episode", new DateTime(2026, 1, 3), 45, "Serie X", "Comedy"),
             Record("u2", "m2", "Other user's film", "Movie", new DateTime(2026, 1, 4), 120, genres: ["Action"]),
@@ -49,9 +49,10 @@ public sealed class WrappedStatisticsCalculatorTests
         Assert.Equal("Drama", result.TopGenres[0].Genre);
         Assert.Equal(185d / 3, result.AverageMinutesPerPlay, 1);
         Assert.Equal(0, result.RepeatPlays);
-        Assert.Equal(100, result.CompletionRatePercent, 1);
+        Assert.Equal(1, result.CompletedPlays);
+        Assert.Equal(100d / 3, result.CompletionRatePercent, 1);
         Assert.Equal(100, result.LongestViewingDayMinutes, 1);
-        Assert.Equal(1, result.HourlyActivityUtc[0].Plays);
+        Assert.Equal(3, result.HourlyActivityUtc[0].Plays);
         Assert.Equal(1, result.WeekdayActivityUtc[(int)DayOfWeek.Thursday].Plays);
     }
 
