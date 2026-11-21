@@ -37,7 +37,8 @@ Viewing hours and counts; films, episodes and series; active days; viewing patte
 - Initial metrics: play count, watched minutes (runtime-capped), movie/episode counts, unique movies/series, active days, longest consecutive-day streak, completions, monthly activity, top movies/series and genres.
 - Automated tests cover user isolation, year filtering, repeated plays, runtime capping, empty years, monthly/streak calculations, completion rate, daily totals, and UTC hour/weekday distributions. CI validation is required before these metrics are considered verified.
 - Expanded metrics: average minutes per play, repeated plays (repeat sessions beyond the first play of each item), longest single-day viewing time, completion rate, and start-time patterns by hour and weekday.
-- Hour and weekday breakdowns are explicitly marked UTC until the administrator's Jellyfin/server timezone is wired into the report; the UI must not label them as local time yet.
+- Hour and weekday breakdowns are explicitly UTC. Year selection, month/day/hour/weekday buckets, active-day grouping and streak calculations normalize timestamps to UTC. Reports must not label them as local time until the administrator's Jellyfin/server timezone is wired in.
+- Regression tests now cover UTC year-boundary offsets and elapsed-duration fallback with runtime capping.
 
 
 
