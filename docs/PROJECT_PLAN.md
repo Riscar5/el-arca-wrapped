@@ -35,7 +35,10 @@ Viewing hours and counts; films, episodes and series; active days; viewing patte
 - SQLite playback-session capture scaffold and database initialization tests.
 - First pure annual-statistics calculator, separated from Jellyfin event APIs for easier testing.
 - Initial metrics: play count, watched minutes (runtime-capped), movie/episode counts, unique movies/series, active days, longest consecutive-day streak, completions, monthly activity, top movies/series and genres.
-- Automated tests cover user isolation, year filtering, repeated plays, runtime capping, empty years and monthly/streak calculations. CI validation is running/required before these metrics are considered verified.
+- Automated tests cover user isolation, year filtering, repeated plays, runtime capping, empty years, monthly/streak calculations, completion rate, daily totals, and UTC hour/weekday distributions. CI validation is required before these metrics are considered verified.
+- Expanded metrics: average minutes per play, repeated plays (repeat sessions beyond the first play of each item), longest single-day viewing time, completion rate, and start-time patterns by hour and weekday.
+- Hour and weekday breakdowns are explicitly marked UTC until the administrator's Jellyfin/server timezone is wired into the report; the UI must not label them as local time yet.
+
 
 
 1. Verify Jellyfin server version and official plugin template/API compatibility.
