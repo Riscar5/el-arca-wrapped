@@ -90,7 +90,7 @@ public sealed class PlaybackSessionStoreTests
             await InsertAsync(connection, "session-2", "user-b", "Movie B", "Movie",
                 "2026-06-01T12:00:00.0000000+00:00", "2026-06-01T12:30:00.0000000+00:00", 72000000000L, false);
             await InsertAsync(connection, "session-3", "user-a", "Movie C", "Movie",
-                "2025-12-31T23:30:00.0000000-02:00", "2026-01-01T00:10:00.0000000+00:00", 36000000000L, false);
+                "2025-12-31T23:30:00.0000000+02:00", "2026-01-01T00:10:00.0000000+00:00", 36000000000L, false);
 
             var records = await store.GetRecordsAsync("user-a", 2026);
 
