@@ -115,7 +115,7 @@ public sealed class PlaybackSessionStore
             command.Parameters.AddWithValue("$positionTicks", eventArgs.PlaybackPositionTicks is long position ? position : DBNull.Value);
             command.Parameters.AddWithValue("$runtimeTicks", item.RunTimeTicks is long runtime ? runtime : DBNull.Value);
             command.Parameters.AddWithValue("$genresJson", System.Text.Json.JsonSerializer.Serialize(item.Genres ?? Array.Empty<string>()));
-            command.Parameters.AddWithValue("$seriesName", item.SeriesName ?? (item.GetType().Name.Contains("Episode", StringComparison.OrdinalIgnoreCase) ? item.Name : null) ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("$seriesName", DBNull.Value);
             command.Parameters.AddWithValue("$productionYear", item.ProductionYear ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("$seasonNumber", item.ParentIndexNumber ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("$episodeNumber", item.IndexNumber ?? (object)DBNull.Value);
