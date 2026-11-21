@@ -20,10 +20,10 @@ public sealed record PlaybackRecord
 }
 
 public sealed record RankedItem(string Name, int Plays, double MinutesWatched);
-
 public sealed record MonthlyActivity(int Month, int Plays, double MinutesWatched);
-
 public sealed record GenreActivity(string Genre, int Plays, double MinutesWatched);
+public sealed record HourlyActivity(int HourUtc, int Plays, double MinutesWatched);
+public sealed record WeekdayActivity(DayOfWeek Day, int Plays, double MinutesWatched);
 
 public sealed record WrappedStatistics
 {
@@ -31,6 +31,9 @@ public sealed record WrappedStatistics
     public required int Year { get; init; }
     public int TotalPlays { get; init; }
     public double TotalMinutesWatched { get; init; }
+    public double AverageMinutesPerPlay { get; init; }
+    public int RepeatPlays { get; init; }
+    public double LongestViewingDayMinutes { get; init; }
     public int MoviePlays { get; init; }
     public int EpisodePlays { get; init; }
     public int UniqueMovies { get; init; }
@@ -38,7 +41,10 @@ public sealed record WrappedStatistics
     public int ActiveDays { get; init; }
     public int LongestStreakDays { get; init; }
     public int CompletedPlays { get; init; }
+    public double CompletionRatePercent { get; init; }
     public IReadOnlyList<MonthlyActivity> MonthlyActivity { get; init; } = Array.Empty<MonthlyActivity>();
+    public IReadOnlyList<HourlyActivity> HourlyActivityUtc { get; init; } = Array.Empty<HourlyActivity>();
+    public IReadOnlyList<WeekdayActivity> WeekdayActivityUtc { get; init; } = Array.Empty<WeekdayActivity>();
     public IReadOnlyList<RankedItem> TopMovies { get; init; } = Array.Empty<RankedItem>();
     public IReadOnlyList<RankedItem> TopSeries { get; init; } = Array.Empty<RankedItem>();
     public IReadOnlyList<GenreActivity> TopGenres { get; init; } = Array.Empty<GenreActivity>();
