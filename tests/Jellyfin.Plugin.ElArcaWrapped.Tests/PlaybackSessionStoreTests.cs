@@ -92,6 +92,12 @@ public sealed class PlaybackSessionStoreTests
             await InsertAsync(connection, "session-3", "user-a", "Movie C", "Movie",
                 "2025-12-31T23:30:00.0000000+02:00", "2026-01-01T00:10:00.0000000+00:00", 36000000000L, false);
 
+            await using (var metadata = connection.CreateCommand())
+            {
+                metadata.CommandText = "UPDATE PlaybackSessions SET GenresJson = '[\"Sci-Fi\",\"Drama\"]', SeriesName = 'Series X', ProductionYear = 2024, SeasonNumber = 2, EpisodeNumber = 5, PrimaryImagePath = '/Items/abc/Images/Primary?maxWidth=600&quality=90' WHERE PlaySessionId = 'session-1';";
+                await metadata.ExecuteNonQueryAsync();
+            }
+
             var records = await store.GetRecordsAsync("user-a", 2026);
 
             Assert.Single(records);
@@ -100,6 +106,12 @@ public sealed class PlaybackSessionStoreTests
             Assert.Equal(72000000000L, records[0].RuntimeTicks);
             Assert.True(records[0].PlayedToCompletion);
             Assert.Null(records[0].WatchedTicks);
+            Assert.Equal(new[] { "Sci-Fi", "Drama" }, records[0].Genres);
+            Assert.Equal("Series X", records[0].SeriesName);
+            Assert.Equal(2024, records[0].ProductionYear);
+            Assert.Equal(2, records[0].SeasonNumber);
+            Assert.Equal(5, records[0].EpisodeNumber);
+            Assert.Equal("/Items/abc/Images/Primary?maxWidth=600&quality=90", records[0].PrimaryImagePath);
         }
         finally
         {
