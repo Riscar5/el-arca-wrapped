@@ -19,6 +19,7 @@ An administrator selects a year and one or more users, previews each recap and e
 
 - C# Jellyfin plugin, targeting the server's verified supported .NET/Jellyfin API versions.
 - Playback event capture for start, progress, pause/resume, stop and completion.
+- Use Jellyfin's existing primary artwork for films and series. For exported standalone HTML, fetch and embed thumbnail data (data URI) so images remain available offline; avoid depending on an authenticated Jellyfin URL in the final report.
 - SQLite database stored in the plugin data directory.
 - Statistics service for yearly aggregation.
 - Administrator interface for year/user selection, preview and export.
@@ -34,6 +35,7 @@ Viewing hours and counts; films, episodes and series; active days; viewing patte
 
 - SQLite playback-session capture scaffold and database initialization tests.
 - First pure annual-statistics calculator, separated from Jellyfin event APIs for easier testing.
+- Playback rows now include metadata columns for genre, year, season/episode numbers, and a relative primary-image endpoint. The SQLite initializer adds these columns idempotently for existing installations. Image embedding into standalone HTML remains a future export-stage task.
 - Initial metrics: play count, watched minutes (runtime-capped), movie/episode counts, unique movies/series, active days, longest consecutive-day streak, completions, monthly activity, top movies/series and genres.
 - Automated tests cover user isolation, year filtering, repeated plays, runtime capping, empty years, monthly/streak calculations, completion rate, daily totals, and UTC hour/weekday distributions. CI validation is required before these metrics are considered verified.
 - Expanded metrics: average minutes per play, repeated plays (repeat sessions beyond the first play of each item), longest single-day viewing time, completion rate, and start-time patterns by hour and weekday.
