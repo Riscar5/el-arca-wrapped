@@ -119,6 +119,49 @@ public sealed class PlaybackSessionStore
         await transaction.CommitAsync().ConfigureAwait(false);
     }
 
+    /// <summary>Reads a normalized, user-scoped annual snapshot for the statistics engine.</summary>
+    public async Task<IReadOnlyList<Statistics.PlaybackRecord>> GetRecordsAsync(string userId, int year)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(userId);
+        if (year is < 1900 or > 9999) throw new ArgumentOutOfRangeException(nameof(year));
+
+        await EnsureDatabaseAsync().ConfigureAwait(false);
+        var records = new List<Statistics.PlaybackRecord>();
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync().ConfigureAwait(false);
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT UserId, ItemId, ItemName, ItemType, StartedAtUtc, EndedAtUtc,
+                   RuntimeTicks, PlayedToCompletion
+            FROM PlaybackSessions
+            WHERE UserId = $userId
+            ORDER BY StartedAtUtc;
+            """;
+        command.Parameters.AddWithValue("$userId", userId);
+        await using var reader = await command.ExecuteReaderAsync().ConfigureAwait(false);
+        while (await reader.ReadAsync().ConfigureAwait(false))
+        {
+            var started = DateTimeOffset.Parse(reader.GetString(4), System.Globalization.CultureInfo.InvariantCulture);
+            if (started.UtcDateTime.Year != year) continue;
+            DateTimeOffset? ended = reader.IsDBNull(5) ? null :
+                DateTimeOffset.Parse(reader.GetString(5), System.Globalization.CultureInfo.InvariantCulture);
+            records.Add(new Statistics.PlaybackRecord
+            {
+                UserId = reader.GetString(0),
+                ItemId = reader.GetString(1),
+                ItemName = reader.GetString(2),
+                ItemType = reader.GetString(3),
+                StartedAtUtc = started,
+                EndedAtUtc = ended,
+                RuntimeTicks = reader.IsDBNull(6) ? null : reader.GetInt64(6),
+                // Position is not watched duration. The calculator uses elapsed time as a capped fallback.
+                WatchedTicks = null,
+                PlayedToCompletion = reader.GetBoolean(7)
+            });
+        }
+        return records;
+    }
+
     internal async Task EnsureDatabaseAsync()
     {
         if (_initialized)
