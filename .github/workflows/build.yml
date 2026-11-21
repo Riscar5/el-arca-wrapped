@@ -20,7 +20,10 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Restore
-        run: dotnet restore src/Jellyfin.Plugin.ElArcaWrapped/Jellyfin.Plugin.ElArcaWrapped.csproj
+        run: dotnet restore tests/Jellyfin.Plugin.ElArcaWrapped.Tests/Jellyfin.Plugin.ElArcaWrapped.Tests.csproj
 
-      - name: Build
+      - name: Build plugin
         run: dotnet build src/Jellyfin.Plugin.ElArcaWrapped/Jellyfin.Plugin.ElArcaWrapped.csproj --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test tests/Jellyfin.Plugin.ElArcaWrapped.Tests/Jellyfin.Plugin.ElArcaWrapped.Tests.csproj --configuration Release --no-restore
