@@ -1,8 +1,6 @@
-using System.Globalization;
-
 namespace Jellyfin.Plugin.ElArcaWrapped.Statistics;
 
-/// <summary>Computes a first set of annual metrics from normalized, user-scoped playback records.</summary>
+/// <summary>Computes annual metrics from normalized, user-scoped playback records.</summary>
 public static class WrappedStatisticsCalculator
 {
     public static WrappedStatistics Calculate(IEnumerable<PlaybackRecord> source, string userId, int year)
@@ -14,45 +12,47 @@ public static class WrappedStatisticsCalculator
             throw new ArgumentOutOfRangeException(nameof(year));
         }
 
-        // User isolation is enforced here too, even if the caller already filtered the query.
+        // Enforce user isolation here even when the caller has already filtered the database query.
         var records = source
             .Where(r => string.Equals(r.UserId, userId, StringComparison.Ordinal))
             .Where(r => r.StartedAtUtc.Year == year)
             .OrderBy(r => r.StartedAtUtc)
             .ToArray();
 
-        var durationMinutes = records.Select(GetMinutesWatched).ToArray();
-        // Keep each record paired with its own duration before filtering. Filtering records
-        // and then indexing into the unfiltered duration array can misattribute minutes or
-        // throw when the two collections no longer have matching positions.
-        var indexedRecords = records
-            .Select((record, index) => (Record: record, Minutes: durationMinutes[index]))
-            .ToArray();
-        var movies = indexedRecords.Where(item => IsMovie(item.Record)).ToArray();
-        var episodes = indexedRecords.Where(item => IsEpisode(item.Record)).ToArray();
+        var indexed = records.Select((record, index) =>
+            (Record: record, Minutes: GetMinutesWatched(record))).ToArray();
+        var minutes = indexed.Select(item => item.Minutes).ToArray();
+        var movies = indexed.Where(item => IsMovie(item.Record)).ToArray();
+        var episodes = indexed.Where(item => IsEpisode(item.Record)).ToArray();
 
-        var monthly = Enumerable.Range(1, 12)
-            .Select(month =>
-            {
-                var indices = records.Select((record, index) => (record, index))
-                    .Where(pair => pair.record.StartedAtUtc.Month == month)
-                    .Select(pair => pair.index);
-                var monthIndices = indices.ToArray();
-                return new MonthlyActivity(month, monthIndices.Length,
-                    monthIndices.Sum(index => durationMinutes[index]));
-            }).ToArray();
+        var monthly = Enumerable.Range(1, 12).Select(month =>
+        {
+            var items = indexed.Where(item => item.Record.StartedAtUtc.Month == month).ToArray();
+            return new MonthlyActivity(month, items.Length, items.Sum(item => item.Minutes));
+        }).ToArray();
 
-        var topMovies = RankItems(movies, record => record.ItemName);
-        var topSeries = RankItems(episodes,
-            record => string.IsNullOrWhiteSpace(record.SeriesName) ? record.ItemName : record.SeriesName!);
+        var hourly = Enumerable.Range(0, 24).Select(hour =>
+        {
+            var items = indexed.Where(item => item.Record.StartedAtUtc.Hour == hour).ToArray();
+            return new HourlyActivity(hour, items.Length, items.Sum(item => item.Minutes));
+        }).ToArray();
+
+        var weekdays = Enum.GetValues<DayOfWeek>().Select(day =>
+        {
+            var items = indexed.Where(item => item.Record.StartedAtUtc.DayOfWeek == day).ToArray();
+            return new WeekdayActivity(day, items.Length, items.Sum(item => item.Minutes));
+        }).ToArray();
 
         var genreCounts = new Dictionary<string, (int Plays, double Minutes)>(StringComparer.OrdinalIgnoreCase);
-        for (var index = 0; index < records.Length; index++)
+        foreach (var item in indexed)
         {
-            foreach (var genre in records[index].Genres.Where(g => !string.IsNullOrWhiteSpace(g)).Select(g => g.Trim()).Distinct(StringComparer.OrdinalIgnoreCase))
+            foreach (var genre in item.Record.Genres
+                         .Where(g => !string.IsNullOrWhiteSpace(g))
+                         .Select(g => g.Trim())
+                         .Distinct(StringComparer.OrdinalIgnoreCase))
             {
-                var existing = genreCounts.GetValueOrDefault(genre);
-                genreCounts[genre] = (existing.Plays + 1, existing.Minutes + durationMinutes[index]);
+                var current = genreCounts.GetValueOrDefault(genre);
+                genreCounts[genre] = (current.Plays + 1, current.Minutes + item.Minutes);
             }
         }
 
@@ -65,23 +65,39 @@ public static class WrappedStatisticsCalculator
             .ToArray();
 
         var activeDates = records.Select(r => r.StartedAtUtc.Date).Distinct().Order().ToArray();
+        var distinctItems = records.Select(r => r.ItemId).Distinct(StringComparer.Ordinal).Count();
+        var totalMinutes = minutes.Sum();
+        var completed = records.Count(r => r.PlayedToCompletion);
+        var longestDay = indexed.GroupBy(item => item.Record.StartedAtUtc.Date)
+            .Select(group => group.Sum(item => item.Minutes))
+            .DefaultIfEmpty(0)
+            .Max();
 
         return new WrappedStatistics
         {
             UserId = userId,
             Year = year,
             TotalPlays = records.Length,
-            TotalMinutesWatched = durationMinutes.Sum(),
+            TotalMinutesWatched = totalMinutes,
+            AverageMinutesPerPlay = records.Length == 0 ? 0 : totalMinutes / records.Length,
+            RepeatPlays = Math.Max(0, records.Length - distinctItems),
+            LongestViewingDayMinutes = longestDay,
             MoviePlays = movies.Length,
             EpisodePlays = episodes.Length,
             UniqueMovies = movies.Select(item => item.Record.ItemId).Distinct(StringComparer.Ordinal).Count(),
-            UniqueSeries = episodes.Select(item => string.IsNullOrWhiteSpace(item.Record.SeriesName) ? item.Record.ItemName : item.Record.SeriesName!).Distinct(StringComparer.OrdinalIgnoreCase).Count(),
+            UniqueSeries = episodes.Select(item => string.IsNullOrWhiteSpace(item.Record.SeriesName)
+                    ? item.Record.ItemName : item.Record.SeriesName!)
+                .Distinct(StringComparer.OrdinalIgnoreCase).Count(),
             ActiveDays = activeDates.Length,
             LongestStreakDays = GetLongestStreak(activeDates),
-            CompletedPlays = records.Count(r => r.PlayedToCompletion),
+            CompletedPlays = completed,
+            CompletionRatePercent = records.Length == 0 ? 0 : completed * 100d / records.Length,
             MonthlyActivity = monthly,
-            TopMovies = topMovies,
-            TopSeries = topSeries,
+            HourlyActivityUtc = hourly,
+            WeekdayActivityUtc = weekdays,
+            TopMovies = RankItems(movies, record => record.ItemName),
+            TopSeries = RankItems(episodes,
+                record => string.IsNullOrWhiteSpace(record.SeriesName) ? record.ItemName : record.SeriesName!),
             TopGenres = topGenres
         };
     }
@@ -99,7 +115,7 @@ public static class WrappedStatisticsCalculator
             return 0;
         }
 
-        // A recorded play can exceed runtime due to pause/seek or event gaps. Cap at runtime when known.
+        // Cap implausible session duration at known runtime (e.g. server event gaps).
         if (record.RuntimeTicks is > 0)
         {
             ticks = Math.Min(ticks.Value, record.RuntimeTicks.Value);
@@ -119,11 +135,11 @@ public static class WrappedStatisticsCalculator
         Func<PlaybackRecord, string> nameSelector)
     {
         var aggregates = new Dictionary<string, (int Plays, double Minutes)>(StringComparer.OrdinalIgnoreCase);
-        foreach (var (record, minutes) in items)
+        foreach (var (record, watchedMinutes) in items)
         {
             var name = nameSelector(record);
             var current = aggregates.GetValueOrDefault(name);
-            aggregates[name] = (current.Plays + 1, current.Minutes + minutes);
+            aggregates[name] = (current.Plays + 1, current.Minutes + watchedMinutes);
         }
 
         return aggregates
@@ -137,11 +153,7 @@ public static class WrappedStatisticsCalculator
 
     private static int GetLongestStreak(IReadOnlyList<DateTime> dates)
     {
-        if (dates.Count == 0)
-        {
-            return 0;
-        }
-
+        if (dates.Count == 0) return 0;
         var longest = 1;
         var current = 1;
         for (var index = 1; index < dates.Count; index++)
@@ -151,12 +163,8 @@ public static class WrappedStatisticsCalculator
                 current++;
                 longest = Math.Max(longest, current);
             }
-            else
-            {
-                current = 1;
-            }
+            else current = 1;
         }
-
         return longest;
     }
 }
