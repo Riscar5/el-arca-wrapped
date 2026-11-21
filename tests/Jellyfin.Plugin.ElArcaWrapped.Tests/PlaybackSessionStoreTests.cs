@@ -1,3 +1,4 @@
+using Xunit;
 using Jellyfin.Plugin.ElArcaWrapped.Services;
 using Microsoft.Data.Sqlite;
 
