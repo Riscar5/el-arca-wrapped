@@ -94,7 +94,7 @@ public sealed class PlaybackSessionStoreTests
 
             await using (var metadata = connection.CreateCommand())
             {
-                metadata.CommandText = "UPDATE PlaybackSessions SET GenresJson = '[\"Sci-Fi\",\"Drama\"]', SeriesName = 'Series X', ProductionYear = 2024, SeasonNumber = 2, EpisodeNumber = 5, PrimaryImagePath = '/Items/abc/Images/Primary?maxWidth=600&quality=90' WHERE PlaySessionId = 'session-1';";
+                metadata.CommandText = "UPDATE PlaybackSessions SET WatchedTicks = 123450000, GenresJson = '[\"Sci-Fi\",\"Drama\"]', SeriesName = 'Series X', ProductionYear = 2024, SeasonNumber = 2, EpisodeNumber = 5, PrimaryImagePath = '/Items/abc/Images/Primary?maxWidth=600&quality=90' WHERE PlaySessionId = 'session-1';";
                 await metadata.ExecuteNonQueryAsync();
             }
 
@@ -105,7 +105,7 @@ public sealed class PlaybackSessionStoreTests
             Assert.Equal("user-a", records[0].UserId);
             Assert.Equal(72000000000L, records[0].RuntimeTicks);
             Assert.True(records[0].PlayedToCompletion);
-            Assert.Null(records[0].WatchedTicks);
+            Assert.Equal(123450000L, records[0].WatchedTicks);
             Assert.Equal(new[] { "Sci-Fi", "Drama" }, records[0].Genres);
             Assert.Equal("Series X", records[0].SeriesName);
             Assert.Equal(2024, records[0].ProductionYear);
