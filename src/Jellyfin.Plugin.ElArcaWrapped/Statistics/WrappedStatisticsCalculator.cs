@@ -42,9 +42,9 @@ public static class WrappedStatisticsCalculator
                     monthIndices.Sum(index => durationMinutes[index]));
             }).ToArray();
 
-        var topMovies = RankItems(movies, item => item.Record.ItemName);
+        var topMovies = RankItems(movies, record => record.ItemName);
         var topSeries = RankItems(episodes,
-            item => string.IsNullOrWhiteSpace(item.Record.SeriesName) ? item.Record.ItemName : item.Record.SeriesName!);
+            record => string.IsNullOrWhiteSpace(record.SeriesName) ? record.ItemName : record.SeriesName!);
 
         var genreCounts = new Dictionary<string, (int Plays, double Minutes)>(StringComparer.OrdinalIgnoreCase);
         for (var index = 0; index < records.Length; index++)
