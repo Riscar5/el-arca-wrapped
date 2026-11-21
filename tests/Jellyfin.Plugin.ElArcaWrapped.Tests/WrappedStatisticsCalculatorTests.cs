@@ -44,6 +44,8 @@ public sealed class WrappedStatisticsCalculatorTests
         Assert.Equal(3, result.MonthlyActivity[0].Plays);
         Assert.Equal(0, result.MonthlyActivity[1].Plays);
         Assert.Equal("Serie X", Assert.Single(result.TopSeries).Name);
+        Assert.Equal(85, result.TopSeries[0].MinutesWatched, 1);
+        Assert.Equal(100, Assert.Single(result.TopMovies).MinutesWatched, 1);
         Assert.Equal("Drama", result.TopGenres[0].Genre);
     }
 
