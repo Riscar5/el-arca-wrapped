@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101014">
+<title>El Arca Wrapped — Demo</title>
+<style>
+:root{color-scheme:dark;--bg:#101014;--panel:#1b1b23;--ink:#f7f4ed;--muted:#aaa7b5;--lime:#d5ff48;--pink:#ff5d9e;--blue:#73c9ff;--orange:#ffad62;--line:#34343e}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{width:min(100% - 32px,980px);margin:auto}.top{display:flex;justify-content:space-between;align-items:center;padding:22px 0;color:var(--muted);font-size:.82rem;letter-spacing:.08em;text-transform:uppercase}.brand{color:var(--ink);font-weight:800;letter-spacing:.02em}.tag{border:1px solid #555;padding:5px 10px;border-radius:99px}
+.hero{min-height:76vh;display:flex;flex-direction:column;justify-content:center;padding:52px 0 70px;position:relative;overflow:hidden}.eyebrow{color:var(--lime);font-size:.82rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase}.hero h1{font-size:clamp(3.5rem,13vw,8.7rem);line-height:.86;letter-spacing:-.085em;margin:24px 0 22px;max-width:850px}.hero h1 span{color:var(--lime)}.intro{max-width:570px;color:var(--muted);font-size:1.12rem}.hero:after{content:"";position:absolute;width:270px;height:270px;border:42px solid var(--pink);border-radius:50%;right:-85px;bottom:5px;opacity:.8;z-index:-1}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:8px 0 64px}.stat{background:var(--panel);border-radius:18px;padding:22px;min-height:140px}.stat strong{display:block;font-size:clamp(2rem,7vw,3.5rem);line-height:1.05;letter-spacing:-.06em;color:var(--lime)}.stat span{display:block;color:var(--muted);margin-top:10px;font-size:.9rem}
+section.story{padding:54px 0;border-top:1px solid var(--line)}.kicker{font-size:.78rem;letter-spacing:.15em;text-transform:uppercase;color:var(--pink);font-weight:800}.story h2{font-size:clamp(2.2rem,8vw,4.8rem);line-height:.98;letter-spacing:-.065em;margin:12px 0 18px;max-width:750px}.lead{font-size:1.1rem;color:var(--muted);max-width:620px}
+.chart{background:var(--panel);padding:20px;border-radius:18px;margin-top:26px}.bars{height:190px;display:flex;align-items:end;gap:9px;border-bottom:1px solid #555;padding:0 2px}.bar{flex:1;min-width:0;background:linear-gradient(180deg,var(--lime),#849d2d);border-radius:7px 7px 2px 2px;position:relative}.bar:nth-child(3n){background:linear-gradient(180deg,var(--pink),#9e3763)}.months{display:flex;justify-content:space-between;color:var(--muted);font-size:.7rem;padding-top:9px}
+.rank{display:grid;gap:10px;margin-top:24px}.rankrow{display:grid;grid-template-columns:38px 1fr auto;gap:12px;align-items:center;background:var(--panel);padding:14px;border-radius:13px}.num{font-size:1.3rem;color:var(--lime);font-weight:900}.name{font-weight:700}.detail{font-size:.82rem;color:var(--muted)}.mins{font-weight:800;white-space:nowrap}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.tile{padding:20px;border-radius:18px;background:var(--panel)}.tile .big{font-size:2.6rem;letter-spacing:-.06em;color:var(--blue);font-weight:850}.tile p{margin:6px 0 0;color:var(--muted);font-size:.9rem}
+.quote{font-size:clamp(1.8rem,6vw,3.2rem);line-height:1.1;letter-spacing:-.04em;color:var(--lime);margin:30px 0}
+footer{padding:34px 0 55px;border-top:1px solid var(--line);color:var(--muted);font-size:.82rem}.notice{background:#282817;color:#e9e6bd;border:1px solid #55512c;padding:12px 15px;border-radius:12px;font-size:.82rem;margin:20px 0 0}
+@media(min-width:700px){.stats{grid-template-columns:repeat(4,1fr)}.stat{min-height:165px;padding:25px}.split{grid-template-columns:repeat(4,1fr)}.hero{min-height:82vh}.chart{padding:28px}.bars{height:240px}}
+@media(prefers-reduced-motion:no-preference){.hero h1{animation:rise .8s ease-out both}@keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><div class="brand">EL ARCA / WRAPPED</div><div class="tag">Edición 2025</div></header>
+<main>
+<section class="hero">
+<div class="eyebrow">Tu año en Jellyfin · 2025</div>
+<h1>Un año<br>de <span>historias.</span></h1>
+<p class="intro">No solo has visto películas y series. Has dedicado tiempo a mundos, personajes y momentos que se quedan contigo.</p>
+<div class="notice">Vista de demostración con cifras ficticias. No contiene datos de tu servidor ni de ningún usuario real.</div>
+</section>
+<div class="stats">
+<div class="stat"><strong>286 h</strong><span>de tiempo de visionado</span></div>
+<div class="stat"><strong>412</strong><span>reproducciones registradas</span></div>
+<div class="stat"><strong>96</strong><span>días con actividad</span></div>
+<div class="stat"><strong>18</strong><span>películas diferentes</span></div>
+</div>
+<section class="story">
+<div class="kicker">01 / Tu ritmo</div><h2>Octubre fue tu gran pantalla.</h2>
+<p class="lead">Fue el mes en el que más tiempo pasaste viendo contenido. Y tu actividad no se concentró en un solo día: volviste una y otra vez.</p>
+<div class="chart" role="img" aria-label="Gráfico de horas vistas por mes, con máximo en octubre">
+<div class="bars">
+<div class="bar" style="height:42%"></div><div class="bar" style="height:56%"></div><div class="bar" style="height:48%"></div><div class="bar" style="height:66%"></div><div class="bar" style="height:38%"></div><div class="bar" style="height:72%"></div><div class="bar" style="height:54%"></div><div class="bar" style="height:62%"></div><div class="bar" style="height:85%"></div><div class="bar" style="height:100%"></div><div class="bar" style="height:68%"></div><div class="bar" style="height:47%"></div>
+</div><div class="months"><span>ENE</span><span>MAR</span><span>MAY</span><span>JUL</span><span>SEP</span><span>NOV</span><span>DIC</span></div>
+</div>
+</section>
+<section class="story">
+<div class="kicker">02 / Tus favoritos</div><h2>Volviste a estos títulos.</h2>
+<p class="lead">Este es el ranking de las películas que más tiempo ocuparon tu pantalla durante el año.</p>
+<div class="rank">
+<div class="rankrow"><div class="num">01</div><div><div class="name">Blade Runner 2049</div><div class="detail">Ciencia ficción · 3 reproducciones</div></div><div class="mins">8 h 42 min</div></div>
+<div class="rankrow"><div class="num">02</div><div><div class="name">Interstellar</div><div class="detail">Ciencia ficción · 2 reproducciones</div></div><div class="mins">5 h 38 min</div></div>
+<div class="rankrow"><div class="num">03</div><div><div class="name">Mad Max: Fury Road</div><div class="detail">Acción · 2 reproducciones</div></div><div class="mins">4 h 10 min</div></div>
+<div class="rankrow"><div class="num">04</div><div><div class="name">The Grand Budapest Hotel</div><div class="detail">Comedia · 2 reproducciones</div></div><div class="mins">3 h 52 min</div></div>
+</div>
+</section>
+<section class="story">
+<div class="kicker">03 / Tu patrón</div><h2>El fin de semana era tuyo.</h2>
+<p class="lead">Tu momento favorito para darle al play fue el sábado. Tu racha más larga fue de 9 días seguidos.</p>
+<div class="split">
+<div class="tile"><div class="big">21:00</div><p>Tu hora más habitual para empezar a ver algo (UTC en esta demo).</p></div>
+<div class="tile"><div class="big">9 días</div><p>Tu racha más larga de actividad.</p></div>
+<div class="tile"><div class="big">74%</div><p>De las reproducciones llegaron a completarse.</p></div>
+<div class="tile"><div class="big">Sci‑fi</div><p>Tu género más reproducido.</p></div>
+</div>
+</section>
+<section class="story">
+<div class="kicker">04 / El cierre</div>
+<div class="quote">“Este año no has contado las horas. Has llenado el tiempo de historias.”</div>
+<p class="lead">Gracias por compartir otro año de cine y series con El Arca.</p>
+</section>
+</main>
+<footer>EL ARCA WRAPPED · Prototipo visual · Los datos y títulos mostrados son inventados para probar el diseño. La versión final utilizará exclusivamente estadísticas reales del usuario seleccionado y mostrará el periodo de captura disponible.</footer>
+</div>
+</body>
+</html>
