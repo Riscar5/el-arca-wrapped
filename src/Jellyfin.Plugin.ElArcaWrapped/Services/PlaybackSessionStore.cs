@@ -196,8 +196,6 @@ public sealed class PlaybackSessionStore
                 StartedAtUtc = started,
                 EndedAtUtc = ended,
                 RuntimeTicks = reader.IsDBNull(6) ? null : reader.GetInt64(6),
-                // Position is not watched duration. The calculator uses elapsed time as a capped fallback.
-                WatchedTicks = null,
                 WatchedTicks = reader.IsDBNull(7) ? null : reader.GetInt64(7),
                 PlayedToCompletion = reader.GetBoolean(8),
                 Genres = reader.IsDBNull(9) ? Array.Empty<string>() :
