@@ -99,4 +99,32 @@ public sealed class WrappedStatisticsCalculatorTests
         Assert.Equal(1, result.RepeatPlays);
         Assert.Equal(60, result.LongestViewingDayMinutes, 1);
     }
+    [Fact]
+    public void UsesUtcForYearMonthHourAndWeekdayBuckets()
+    {
+        var utcYearBoundary = Record("u1", "m1", "Film", "Movie", new DateTime(2027, 1, 1, 1, 0, 0), 30)
+            with { StartedAtUtc = new DateTimeOffset(2027, 1, 1, 1, 0, 0, TimeSpan.FromHours(14)) };
+        var nextUtcYear = Record("u1", "m2", "Film 2", "Movie", new DateTime(2026, 12, 31, 23, 0, 0), 30)
+            with { StartedAtUtc = new DateTimeOffset(2026, 12, 31, 23, 0, 0, TimeSpan.FromHours(-5)) };
+
+        var result = WrappedStatisticsCalculator.Calculate([utcYearBoundary, nextUtcYear], "u1", 2026);
+
+        Assert.Equal(1, result.TotalPlays);
+        Assert.Equal(1, result.MonthlyActivity[11].Plays);
+        Assert.Equal(0, result.MonthlyActivity[0].Plays);
+        Assert.Equal(1, result.HourlyActivityUtc[11].Plays);
+        Assert.Equal(1, result.WeekdayActivityUtc[(int)DayOfWeek.Thursday].Plays);
+    }
+
+    [Fact]
+    public void FallsBackToElapsedTimeAndCapsAtRuntime()
+    {
+        var record = Record("u1", "m1", "Film", "Movie", new DateTime(2026, 5, 1), 60)
+            with { WatchedTicks = null, EndedAtUtc = new DateTimeOffset(2026, 5, 1, 2, 30, 0, TimeSpan.Zero) };
+
+        var result = WrappedStatisticsCalculator.Calculate([record], "u1", 2026);
+
+        Assert.Equal(60, result.TotalMinutesWatched, 1);
+    }
+
 }
