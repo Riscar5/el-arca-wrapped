@@ -16,6 +16,11 @@ public sealed record PlaybackRecord
     public long? WatchedTicks { get; init; }
     public bool PlayedToCompletion { get; init; }
     public string? SeriesName { get; init; }
+    public int? ProductionYear { get; init; }
+    public int? SeasonNumber { get; init; }
+    public int? EpisodeNumber { get; init; }
+    /// <summary>Relative Jellyfin primary-image endpoint; export will embed thumbnails for offline use.</summary>
+    public string? PrimaryImagePath { get; init; }
     public IReadOnlyList<string> Genres { get; init; } = Array.Empty<string>();
 }
 
