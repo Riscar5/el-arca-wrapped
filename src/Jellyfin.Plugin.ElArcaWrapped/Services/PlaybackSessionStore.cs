@@ -90,7 +90,7 @@ public sealed class PlaybackSessionStore
                     EndedAtUtc = COALESCE(excluded.EndedAtUtc, PlaybackSessions.EndedAtUtc),
                     LastPositionTicks = COALESCE(excluded.LastPositionTicks, PlaybackSessions.LastPositionTicks),
                     RuntimeTicks = COALESCE(excluded.RuntimeTicks, PlaybackSessions.RuntimeTicks),
-                    WatchedTicks = COALESCE(PlaybackSessions.WatchedTicks, 0) + $watchedDeltaTicks,
+                    WatchedTicks = COALESCE(PlaybackSessions.WatchedTicks, 0) + excluded.WatchedTicks,
                     GenresJson = excluded.GenresJson,
                     SeriesName = COALESCE(excluded.SeriesName, PlaybackSessions.SeriesName),
                     ProductionYear = COALESCE(excluded.ProductionYear, PlaybackSessions.ProductionYear),
