@@ -36,7 +36,7 @@ public static class WrappedStatisticsCalculator
                     monthIndices.Sum(index => durationMinutes[index]));
             }).ToArray();
 
-        var topMovies = RankItems(movies, durationMinutes, r => r.ItemName);
+        var topMovies = RankItems(movies.Select(record => (Record: record, Minutes: durationMinutes[Array.IndexOf(records, record)])), r => r.ItemName);
         var seriesRecords = episodes;
         var topSeries = RankItems(seriesRecords, durationMinutes,
             r => string.IsNullOrWhiteSpace(r.SeriesName) ? r.ItemName : r.SeriesName!);
@@ -110,17 +110,15 @@ public static class WrappedStatisticsCalculator
         record.ItemType.Contains("Episode", StringComparison.OrdinalIgnoreCase);
 
     private static IReadOnlyList<RankedItem> RankItems(
-        IReadOnlyList<PlaybackRecord> items,
-        IReadOnlyList<double> minutes,
+        IEnumerable<(PlaybackRecord Record, double Minutes)> items,
         Func<PlaybackRecord, string> nameSelector)
     {
         var aggregates = new Dictionary<string, (int Plays, double Minutes)>(StringComparer.OrdinalIgnoreCase);
-        for (var index = 0; index < minutes.Count; index++)
+        foreach (var (record, minutes) in items)
         {
-            var record = items[index];
             var name = nameSelector(record);
             var current = aggregates.GetValueOrDefault(name);
-            aggregates[name] = (current.Plays + 1, current.Minutes + minutes[index]);
+            aggregates[name] = (current.Plays + 1, current.Minutes + minutes);
         }
 
         return aggregates
