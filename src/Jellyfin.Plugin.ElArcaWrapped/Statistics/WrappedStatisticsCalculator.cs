@@ -22,8 +22,14 @@ public static class WrappedStatisticsCalculator
             .ToArray();
 
         var durationMinutes = records.Select(GetMinutesWatched).ToArray();
-        var movies = records.Where(IsMovie).ToArray();
-        var episodes = records.Where(IsEpisode).ToArray();
+        // Keep each record paired with its own duration before filtering. Filtering records
+        // and then indexing into the unfiltered duration array can misattribute minutes or
+        // throw when the two collections no longer have matching positions.
+        var indexedRecords = records
+            .Select((record, index) => (Record: record, Minutes: durationMinutes[index]))
+            .ToArray();
+        var movies = indexedRecords.Where(item => IsMovie(item.Record)).ToArray();
+        var episodes = indexedRecords.Where(item => IsEpisode(item.Record)).ToArray();
 
         var monthly = Enumerable.Range(1, 12)
             .Select(month =>
@@ -36,10 +42,9 @@ public static class WrappedStatisticsCalculator
                     monthIndices.Sum(index => durationMinutes[index]));
             }).ToArray();
 
-        var topMovies = RankItems(movies.Select(record => (Record: record, Minutes: durationMinutes[Array.IndexOf(records, record)])), r => r.ItemName);
-        var seriesRecords = episodes;
-        var topSeries = RankItems(seriesRecords, durationMinutes,
-            r => string.IsNullOrWhiteSpace(r.SeriesName) ? r.ItemName : r.SeriesName!);
+        var topMovies = RankItems(movies, item => item.Record.ItemName);
+        var topSeries = RankItems(episodes,
+            item => string.IsNullOrWhiteSpace(item.Record.SeriesName) ? item.Record.ItemName : item.Record.SeriesName!);
 
         var genreCounts = new Dictionary<string, (int Plays, double Minutes)>(StringComparer.OrdinalIgnoreCase);
         for (var index = 0; index < records.Length; index++)
