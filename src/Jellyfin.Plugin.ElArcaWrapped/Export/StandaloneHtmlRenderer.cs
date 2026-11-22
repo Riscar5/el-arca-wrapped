@@ -44,10 +44,6 @@ public sealed class StandaloneHtmlRenderer
         sb.Append(" de 12</strong>. El periodo de captura puede ser incompleto.</p></section>");
         RenderRank(sb, "02 / Tus películas", "Películas que más tiempo ocuparon tu pantalla", stats.TopMovies);
         RenderRank(sb, "03 / Tus series", "Series con más tiempo de visionado registrado", stats.TopSeries);
-        RenderInsightBars(sb, "06 / Tus géneros", "Los géneros que más te acompañaron", stats.TopGenres.Select(item => (item.Genre, item.MinutesWatched, item.Plays)));
-        RenderInsightBars(sb, "07 / Décadas", "De qué décadas fueron tus películas", stats.MovieDecades.Select(item => ($"{item.Decade}s", item.MinutesWatched, item.Plays)));
-        RenderInsightBars(sb, "08 / Tu horario", "En qué horas empezaste más reproducciones", stats.HourlyActivityUtc.Select(item => ($"{item.HourUtc:00}:00", item.MinutesWatched, item.Plays)).Where(item => item.Plays > 0).OrderByDescending(item => item.Plays).Take(8));
-        RenderInsightBars(sb, "09 / Tus días", "Los días de la semana con más visionado", stats.WeekdayActivityUtc.Select(item => (DayName(item.Day), item.MinutesWatched, item.Plays)));
         sb.Append("<section class=\"story\"><p class=\"kicker\">04 / Tus marcas</p><h2>Algunos datos que destacan.</h2><div class=\"tiles\">");
         Tile(sb, FormatMinutes(stats.LongestPlayMinutes), "Tu reproducción más larga", stats.LongestPlayItemName);
         Tile(sb, stats.LongestStreakDays.ToString(CultureInfo.InvariantCulture) + " días", "Tu racha más larga", null);
@@ -59,6 +55,10 @@ public sealed class StandaloneHtmlRenderer
             sb.Append("Actividad registrada desde <strong>"); sb.Append(start.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)); sb.Append("</strong> hasta <strong>"); sb.Append(end.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)); sb.Append("</strong> (fechas UTC). No implica que exista captura continua durante todo el periodo.");
         }
         else sb.Append("No hay actividad registrada para este año.");
+        RenderInsightBars(sb, "06 / Tus géneros", "Los géneros que más te acompañaron", stats.TopGenres.Select(item => (item.Genre, item.MinutesWatched, item.Plays)));
+        RenderInsightBars(sb, "07 / Décadas", "De qué décadas fueron tus películas", stats.MovieDecades.Select(item => ($"{item.Decade}s", item.MinutesWatched, item.Plays)));
+        RenderInsightBars(sb, "08 / Tu horario", "En qué horas empezaste más reproducciones", stats.HourlyActivityUtc.Select(item => ($"{item.HourUtc:00}:00", item.MinutesWatched, item.Plays)).Where(item => item.Plays > 0).OrderByDescending(item => item.Plays).Take(8));
+        RenderInsightBars(sb, "09 / Tus días", "Los días de la semana con más visionado", stats.WeekdayActivityUtc.Select(item => (DayName(item.Day), item.MinutesWatched, item.Plays)));
         sb.Append("</p><p class=\"notice\">"); sb.Append(E(report.CoverageNote)); sb.Append("</p></section><footer>El Arca Wrapped · Informe individual · Datos calculados localmente en Jellyfin</footer></main></body></html>");
         return sb.ToString();
     }
