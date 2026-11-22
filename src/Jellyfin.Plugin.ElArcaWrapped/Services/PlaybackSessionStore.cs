@@ -1,4 +1,5 @@
 using MediaBrowser.Common.Configuration;
+using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
 using Microsoft.Data.Sqlite;
 
@@ -147,7 +148,10 @@ public sealed class PlaybackSessionStore
             command.Parameters.AddWithValue("$runtimeTicks", item.RunTimeTicks is long runtime ? runtime : DBNull.Value);
             command.Parameters.AddWithValue("$watchedTicks", watchedDeltaTicks);
             command.Parameters.AddWithValue("$genresJson", System.Text.Json.JsonSerializer.Serialize(item.Genres ?? Array.Empty<string>()));
-            command.Parameters.AddWithValue("$seriesName", DBNull.Value);
+            object seriesName = item is Episode episode && !string.IsNullOrWhiteSpace(episode.SeriesName)
+                ? episode.SeriesName
+                : DBNull.Value;
+            command.Parameters.AddWithValue("$seriesName", seriesName);
             command.Parameters.AddWithValue("$productionYear", item.ProductionYear ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("$seasonNumber", item.ParentIndexNumber ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("$episodeNumber", item.IndexNumber ?? (object)DBNull.Value);
