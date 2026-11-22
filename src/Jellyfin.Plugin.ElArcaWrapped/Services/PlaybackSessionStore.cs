@@ -12,7 +12,8 @@ public sealed class PlaybackSessionStore
 {
     private readonly string _connectionString;
     private readonly string _databasePath;
-    private readonly SemaphoreSlim _initializationLock = new(1, 1);\n    private readonly FallbackPlaybackSessionIdResolver _fallbackSessionIds = new();
+    private readonly SemaphoreSlim _initializationLock = new(1, 1);
+    private readonly FallbackPlaybackSessionIdResolver _fallbackSessionIds = new();
     private bool _initialized;
 
     public PlaybackSessionStore(IApplicationPaths applicationPaths)
@@ -37,7 +38,8 @@ public sealed class PlaybackSessionStore
     public async Task RecordAsync(
         PlaybackProgressEventArgs eventArgs,
         bool isStopped = false,
-        bool playedToCompletion = false,\n        bool isStart = false)
+        bool playedToCompletion = false,
+        bool isStart = false)
     {
         if (eventArgs.Item is null || eventArgs.Item.IsThemeMedia || eventArgs.Users.Count == 0)
         {
