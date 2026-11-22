@@ -40,6 +40,8 @@ public sealed record WrappedStatistics
     public double AverageMinutesPerPlay { get; init; }
     public int RepeatPlays { get; init; }
     public double LongestViewingDayMinutes { get; init; }
+    public double LongestPlayMinutes { get; init; }
+    public string? LongestPlayItemName { get; init; }
     public int MoviePlays { get; init; }
     public int EpisodePlays { get; init; }
     public int UniqueMovies { get; init; }
