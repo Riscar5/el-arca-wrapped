@@ -9,7 +9,7 @@ public sealed class PluginConfiguration : BasePluginConfiguration
 {
     /// <summary>
     /// Gets or sets whether playback tracking is enabled.
-    /// Disabled by default until the tracking service is implemented and tested.
+    /// Disabled by default until playback capture is validated on a live Jellyfin server.
     /// </summary>
     public bool TrackingEnabled { get; set; } = false;
 
