@@ -36,6 +36,7 @@ public sealed class WrappedStatisticsCalculatorTests
         Assert.Equal(3, result.TotalPlays);
         Assert.Equal(185, result.TotalMinutesWatched, 1);
         Assert.Equal(1, result.MoviePlays);
+        Assert.Empty(result.MovieDecades);
         Assert.Equal(2, result.EpisodePlays);
         Assert.Equal(1, result.UniqueMovies);
         Assert.Equal(1, result.UniqueSeries);
@@ -55,6 +56,26 @@ public sealed class WrappedStatisticsCalculatorTests
         Assert.Equal(3, result.HourlyActivityUtc[0].Plays);
         Assert.Equal(1, result.WeekdayActivityUtc[(int)DayOfWeek.Thursday].Plays);
     }
+
+    [Fact]
+    public void GroupsMoviesByDecadeUsingKnownProductionYear()
+    {
+        var records = new[]
+        {
+            Record("u1", "m1", "Film 1984", "Movie", new DateTime(2026, 1, 1), 90) with { ProductionYear = 1984 },
+            Record("u1", "m2", "Film 1989", "Movie", new DateTime(2026, 1, 2), 100) with { ProductionYear = 1989 },
+            Record("u1", "m3", "Film 2001", "Movie", new DateTime(2026, 1, 3), 120) with { ProductionYear = 2001 },
+            Record("u1", "m4", "Unknown year", "Movie", new DateTime(2026, 1, 4), 80)
+        };
+
+        var result = WrappedStatisticsCalculator.Calculate(records, "u1", 2026);
+
+
+        Assert.Equal(2, result.MovieDecades.Count);
+        Assert.Equal(new DecadeActivity(1980, 2, 190), result.MovieDecades[0]);
+        Assert.Equal(new DecadeActivity(2000, 1, 120), result.MovieDecades[1]);
+    }
+
 
     [Fact]
     public void CapsWatchedDurationAtKnownRuntime()
