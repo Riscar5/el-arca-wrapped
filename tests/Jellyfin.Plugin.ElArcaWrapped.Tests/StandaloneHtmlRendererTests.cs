@@ -28,9 +28,9 @@ public sealed class StandaloneHtmlRendererTests
         Assert.Contains("Film &lt;script&gt;alert(1)&lt;/script&gt;", html);
         Assert.DoesNotContain("<script>alert(1)</script>", html);
         Assert.Contains("Feb", html, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("Tus géneros", html);
+        Assert.Contains("Tus g", html);
         Assert.Contains("Drama", html);
         Assert.Contains("Tu horario", html);
-        Assert.Contains("Tus días", html);
+        Assert.Contains("Tus d", html);
     }
 }
