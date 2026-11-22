@@ -47,6 +47,11 @@ public sealed record WrappedStatistics
     public int UniqueMovies { get; init; }
     public int UniqueSeries { get; init; }
     public int ActiveDays { get; init; }
+    /// <summary>Earliest playback activity recorded for this user/year (UTC); not proof of continuous coverage.</summary>
+    public DateTimeOffset? CoverageStartUtc { get; init; }
+    /// <summary>Latest playback activity recorded for this user/year (UTC); not proof of continuous coverage.</summary>
+    public DateTimeOffset? CoverageEndUtc { get; init; }
+    public int MonthsWithActivity { get; init; }
     public int LongestStreakDays { get; init; }
     public int CompletedPlays { get; init; }
     public double CompletionRatePercent { get; init; }
