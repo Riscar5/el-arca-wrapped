@@ -58,9 +58,9 @@ public sealed class StandaloneHtmlRenderer
         sb.Append("</p></section>");
         RenderInsightBars(sb, "06 / Tus géneros", "Los géneros que más te acompañaron", stats.TopGenres.Select(item => (item.Genre, item.MinutesWatched, item.Plays)));
         RenderInsightBars(sb, "07 / Décadas", "De qué décadas fueron tus películas", stats.MovieDecades.Select(item => ($"{item.Decade}s", item.MinutesWatched, item.Plays)));
-        RenderInsightBars(sb, "08 / Tu horario", "En qué horas empezaste más reproducciones", stats.HourlyActivityUtc.Select(item => ($"{item.HourUtc:00}:00", item.MinutesWatched, item.Plays)).Where(item => item.Plays > 0).OrderByDescending(item => item.Plays).Take(8));
-        RenderInsightBars(sb, "09 / Tus días", "Los días de la semana con más visionado", stats.WeekdayActivityUtc.Select(item => (DayName(item.Day), item.MinutesWatched, item.Plays)));
-        sb.Append("<p class=\"notice\">"); sb.Append(E(report.CoverageNote)); sb.Append("</p></section><footer>El Arca Wrapped · Informe individual · Datos calculados localmente en Jellyfin</footer></main></body></html>");
+        RenderInsightBars(sb, "08 / Tu horario UTC", "En qué horas UTC empezaste más reproducciones", stats.HourlyActivityUtc.Select(item => ($"{item.HourUtc:00}:00", item.MinutesWatched, item.Plays)).Where(item => item.Plays > 0).OrderByDescending(item => item.Plays).Take(8));
+        RenderInsightBars(sb, "09 / Tus días UTC", "Los días de la semana con más visionado (UTC)", stats.WeekdayActivityUtc.Select(item => (DayName(item.Day), item.MinutesWatched, item.Plays)));
+        sb.Append("<p class=\"notice\">"); sb.Append(E(report.CoverageNote)); sb.Append(" Las agrupaciones por mes, hora y día se calculan en UTC."); sb.Append("</p></section><footer>El Arca Wrapped · Informe individual · Datos calculados localmente en Jellyfin</footer></main></body></html>");
         return sb.ToString();
     }
 
