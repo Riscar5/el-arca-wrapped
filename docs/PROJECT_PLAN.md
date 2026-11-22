@@ -22,6 +22,7 @@ An administrator selects a year and one or more users, previews each recap and e
 - Use Jellyfin's existing primary artwork for films and series. For exported standalone HTML, fetch and embed thumbnail data (data URI) so images remain available offline; avoid depending on an authenticated Jellyfin URL in the final report.
 - SQLite database stored in the plugin data directory.
 - Statistics service for yearly aggregation.
+- A user-scoped, serializable report data contract now packages display name, year, generated timestamp, and statistics for the future renderer.
 - Administrator interface for year/user selection, preview and export.
 - Standalone responsive HTML with embedded CSS, JavaScript and required data; offline use is a core requirement.
 
