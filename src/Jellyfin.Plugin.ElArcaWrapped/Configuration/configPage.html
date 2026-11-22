@@ -23,6 +23,27 @@
                         <label class="inputLabel inputLabelUnfocused" for="StaleSessionDays">Días para considerar obsoleta una sesión incompleta</label>
                         <input id="StaleSessionDays" name="StaleSessionDays" type="number" is="emby-input" min="1" max="30" />
                     </div>
+
+                    <hr />
+                    <h3>Generar Wrapped</h3>
+                    <p>Vista previa o descarga del informe HTML independiente del usuario seleccionado.</p>
+                    <div class="inputContainer">
+                        <label class="inputLabel" for="ReportUser">Usuario de Jellyfin</label>
+                        <select id="ReportUser" is="emby-select" class="emby-select"></select>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputLabel" for="ReportYear">Año</label>
+                        <input id="ReportYear" type="number" is="emby-input" min="1900" max="9999" />
+                    </div>
+                    <div class="flex align-items-center">
+                        <button id="ReportPreview" is="emby-button" type="button" class="raised emby-button">
+                            <span>Vista previa</span>
+                        </button>
+                        <button id="ReportDownload" is="emby-button" type="button" class="raised emby-button">
+                            <span>Descargar HTML</span>
+                        </button>
+                    </div>
+                    <p id="ReportStatus" class="fieldDescription" aria-live="polite"></p>
                     <button is="emby-button" type="submit" class="raised button-submit block emby-button">
                         <span>Guardar</span>
                     </button>
@@ -43,6 +64,74 @@
                         Dashboard.hideLoadingMsg();
                     });
                 });
+
+
+            function loadWrappedUsers() {
+                const select = document.querySelector('#ReportUser');
+                ApiClient.getUsers().then(function (users) {
+                    select.innerHTML = '';
+                    users.forEach(function (user) {
+                        const option = document.createElement('option');
+                        option.value = user.Id;
+                        option.textContent = user.Name;
+                        select.appendChild(option);
+                    });
+                    if (!users.length) document.querySelector('#ReportStatus').textContent = 'No se encontraron usuarios.';
+                }).catch(function () {
+                    document.querySelector('#ReportStatus').textContent = 'No se pudieron cargar los usuarios.';
+                });
+            }
+
+            function createWrappedHtmlUrl() {
+                const userId = document.querySelector('#ReportUser').value;
+                const year = Number(document.querySelector('#ReportYear').value);
+                if (!userId || !Number.isInteger(year) || year < 1900 || year > 9999) {
+                    throw new Error('Selecciona un usuario y un año válido.');
+                }
+                return ApiClient.getUrl('ElArcaWrapped/Export', { userId: userId, year: year });
+            }
+
+            function fetchWrappedHtml() {
+                const url = createWrappedHtmlUrl();
+                return ApiClient.ajax({ url: url, type: 'GET', dataType: 'text' });
+            }
+
+            document.querySelector('#ReportPreview').addEventListener('click', function () {
+                const previewWindow = window.open('', '_blank');
+                if (!previewWindow) {
+                    document.querySelector('#ReportStatus').textContent = 'El navegador bloqueó la ventana de vista previa. Permite ventanas emergentes y vuelve a intentarlo.';
+                    return;
+                }
+                document.querySelector('#ReportStatus').textContent = 'Generando vista previa…';
+                fetchWrappedHtml().then(function (html) {
+                    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    previewWindow.location.href = url;
+                    document.querySelector('#ReportStatus').textContent = 'Vista previa generada.';
+                }).catch(function (error) {
+                    previewWindow.close();
+                    document.querySelector('#ReportStatus').textContent = error.message || 'No se pudo generar el informe.';
+                });
+            });
+
+            document.querySelector('#ReportDownload').addEventListener('click', function () {
+                document.querySelector('#ReportStatus').textContent = 'Preparando descarga…';
+                fetchWrappedHtml().then(function (html) {
+                    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const anchor = document.createElement('a');
+                    anchor.href = url;
+                    anchor.download = 'El-Arca-Wrapped-' + document.querySelector('#ReportYear').value + '.html';
+                    anchor.click();
+                    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+                    document.querySelector('#ReportStatus').textContent = 'Descarga iniciada.';
+                }).catch(function (error) {
+                    document.querySelector('#ReportStatus').textContent = error.message || 'No se pudo descargar el informe.';
+                });
+            });
+
+            document.querySelector('#ReportYear').value = new Date().getFullYear();
+            loadWrappedUsers();
 
             document.querySelector('#ElArcaWrappedConfigForm')
                 .addEventListener('submit', function (event) {
