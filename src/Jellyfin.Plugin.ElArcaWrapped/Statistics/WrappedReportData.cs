@@ -8,7 +8,7 @@ public sealed record WrappedReportData
     public required int Year { get; init; }
     public required DateTimeOffset GeneratedAtUtc { get; init; }
     public required WrappedStatistics Statistics { get; init; }
-    public string CoverageNote { get; init; } = "Only activity captured by El Arca Wrapped is included; gaps may exist.";
+    public string CoverageNote { get; init; } = "Solo se incluye la actividad capturada por El Arca Wrapped; puede haber periodos sin datos.";
 }
 
 /// <summary>Creates report payloads from already calculated user-scoped statistics.</summary>
