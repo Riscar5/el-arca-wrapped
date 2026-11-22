@@ -23,6 +23,7 @@ An administrator selects a year and one or more users, previews each recap and e
 - SQLite database stored in the plugin data directory.
 - Statistics service for yearly aggregation.
 - A user-scoped, serializable report data contract now packages display name, year, generated timestamp, and statistics for the future renderer.
+- First self-contained HTML renderer implemented: mobile-responsive layout, monthly activity bars, top movie/series lists, records, coverage note, and HTML-escaped user/item text. Artwork embedding and richer visual story sections remain future improvements.
 - Administrator interface for year/user selection, preview and export.
 - Standalone responsive HTML with embedded CSS, JavaScript and required data; offline use is a core requirement.
 
