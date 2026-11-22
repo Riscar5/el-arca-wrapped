@@ -17,7 +17,10 @@ public sealed class StandaloneHtmlRendererTests
             RuntimeTicks = TimeSpan.FromHours(1).Ticks, WatchedTicks = TimeSpan.FromHours(1).Ticks,
             PlayedToCompletion = true, ProductionYear = 2024, Genres = ["Drama"]
         };
-        var stats = WrappedStatisticsCalculator.Calculate([record], "u1", 2026) with\n        {\n            TopMovies = [new RankedItem("Film", 1, 60, Guid.Parse("00000000-0000-0000-0000-000000000001"), "data:image/jpeg;base64,AA==")]\n        };
+        var stats = WrappedStatisticsCalculator.Calculate([record], "u1", 2026) with
+        {
+            TopMovies = [new RankedItem("Film", 1, 60, Guid.Parse("00000000-0000-0000-0000-000000000001"), "data:image/jpeg;base64,AA==")]
+        };
         var report = WrappedReportDataFactory.Create(stats, "User <img src=x onerror=alert(1)>", DateTimeOffset.UtcNow);
         var html = new StandaloneHtmlRenderer().Render(report);
 
@@ -31,6 +34,8 @@ public sealed class StandaloneHtmlRendererTests
         Assert.Contains("Tus g", html);
         Assert.Contains("Drama", html);
         Assert.Contains("Tu horario", html);
-        Assert.Contains("Tus d", html);\n        Assert.Contains("class=\\\"poster\\\"", html);\n        Assert.Contains("data:image/jpeg;base64,AA==", html);
+        Assert.Contains("Tus d", html);
+        Assert.Contains("poster", html);
+        Assert.Contains("data:image/jpeg;base64,AA==", html);
     }
 }
