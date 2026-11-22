@@ -29,6 +29,7 @@ public sealed record MonthlyActivity(int Month, int Plays, double MinutesWatched
 public sealed record GenreActivity(string Genre, int Plays, double MinutesWatched);
 public sealed record HourlyActivity(int HourUtc, int Plays, double MinutesWatched);
 public sealed record WeekdayActivity(DayOfWeek Day, int Plays, double MinutesWatched);
+public sealed record DecadeActivity(int Decade, int Plays, double MinutesWatched);
 
 public sealed record WrappedStatistics
 {
@@ -53,4 +54,5 @@ public sealed record WrappedStatistics
     public IReadOnlyList<RankedItem> TopMovies { get; init; } = Array.Empty<RankedItem>();
     public IReadOnlyList<RankedItem> TopSeries { get; init; } = Array.Empty<RankedItem>();
     public IReadOnlyList<GenreActivity> TopGenres { get; init; } = Array.Empty<GenreActivity>();
+    public IReadOnlyList<DecadeActivity> MovieDecades { get; init; } = Array.Empty<DecadeActivity>();
 }
