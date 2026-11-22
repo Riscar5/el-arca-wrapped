@@ -36,7 +36,8 @@ public sealed class PlaybackEventConsumer :
     private Task RecordIfEnabledAsync(
         PlaybackProgressEventArgs eventArgs,
         bool isStopped = false,
-        bool playedToCompletion = false,\n        bool isStart = false)
+        bool playedToCompletion = false,
+        bool isStart = false)
     {
         if (Plugin.Instance?.Configuration.TrackingEnabled != true)
         {
