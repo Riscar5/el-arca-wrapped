@@ -31,10 +31,10 @@ public sealed class StandaloneHtmlRendererTests
         Assert.Contains("Film &lt;script&gt;alert(1)&lt;/script&gt;", html);
         Assert.DoesNotContain("<script>alert(1)</script>", html);
         Assert.Contains("Feb", html, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("Tus g", html);
+        Assert.Contains("06 /", html);
         Assert.Contains("Drama", html);
-        Assert.Contains("Tu horario", html);
-        Assert.Contains("Tus d", html);
+        Assert.Contains("08 /", html);
+        Assert.Contains("09 /", html);
         Assert.Contains("poster", html);
         Assert.Contains("data:image/jpeg;base64,AA==", html);
     }
