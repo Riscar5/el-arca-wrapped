@@ -77,6 +77,10 @@ public static class WrappedStatisticsCalculator
         var distinctItems = records.Select(r => r.ItemId).Distinct(StringComparer.Ordinal).Count();
         var totalMinutes = minutes.Sum();
         var completed = records.Count(r => r.PlayedToCompletion);
+        var longestPlay = indexed
+            .OrderByDescending(item => item.Minutes)
+            .ThenBy(item => item.Record.StartedAtUtc)
+            .FirstOrDefault();
         var longestDay = indexed.GroupBy(item => item.Record.StartedAtUtc.UtcDateTime.Date)
             .Select(group => group.Sum(item => item.Minutes))
             .DefaultIfEmpty(0)
@@ -91,6 +95,8 @@ public static class WrappedStatisticsCalculator
             AverageMinutesPerPlay = records.Length == 0 ? 0 : totalMinutes / records.Length,
             RepeatPlays = Math.Max(0, records.Length - distinctItems),
             LongestViewingDayMinutes = longestDay,
+            LongestPlayMinutes = longestPlay.Minutes,
+            LongestPlayItemName = longestPlay.Record?.ItemName,
             MoviePlays = movies.Length,
             EpisodePlays = episodes.Length,
             UniqueMovies = movies.Select(item => item.Record.ItemId).Distinct(StringComparer.Ordinal).Count(),
