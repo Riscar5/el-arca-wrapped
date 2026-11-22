@@ -20,7 +20,7 @@ public sealed class PlaybackEventConsumer :
 
     public Task OnEvent(PlaybackStartEventArgs eventArgs)
     {
-        return RecordIfEnabledAsync(eventArgs);
+        return RecordIfEnabledAsync(eventArgs, isStart: true);
     }
 
     public Task OnEvent(PlaybackProgressEventArgs eventArgs)
@@ -36,13 +36,13 @@ public sealed class PlaybackEventConsumer :
     private Task RecordIfEnabledAsync(
         PlaybackProgressEventArgs eventArgs,
         bool isStopped = false,
-        bool playedToCompletion = false)
+        bool playedToCompletion = false,\n        bool isStart = false)
     {
         if (Plugin.Instance?.Configuration.TrackingEnabled != true)
         {
             return Task.CompletedTask;
         }
 
-        return _sessionStore.RecordAsync(eventArgs, isStopped, playedToCompletion);
+        return _sessionStore.RecordAsync(eventArgs, isStopped, playedToCompletion, isStart);
     }
 }
