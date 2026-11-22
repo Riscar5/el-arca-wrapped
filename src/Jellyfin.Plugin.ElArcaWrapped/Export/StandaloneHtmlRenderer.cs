@@ -55,7 +55,7 @@ public sealed class StandaloneHtmlRenderer
             sb.Append("Actividad registrada desde <strong>"); sb.Append(start.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)); sb.Append("</strong> hasta <strong>"); sb.Append(end.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)); sb.Append("</strong> (fechas UTC). No implica que exista captura continua durante todo el periodo.");
         }
         else sb.Append("No hay actividad registrada para este año.");
-        sb.Append("</p>");
+        sb.Append("</p></section>");
         RenderInsightBars(sb, "06 / Tus géneros", "Los géneros que más te acompañaron", stats.TopGenres.Select(item => (item.Genre, item.MinutesWatched, item.Plays)));
         RenderInsightBars(sb, "07 / Décadas", "De qué décadas fueron tus películas", stats.MovieDecades.Select(item => ($"{item.Decade}s", item.MinutesWatched, item.Plays)));
         RenderInsightBars(sb, "08 / Tu horario", "En qué horas empezaste más reproducciones", stats.HourlyActivityUtc.Select(item => ($"{item.HourUtc:00}:00", item.MinutesWatched, item.Plays)).Where(item => item.Plays > 0).OrderByDescending(item => item.Plays).Take(8));
