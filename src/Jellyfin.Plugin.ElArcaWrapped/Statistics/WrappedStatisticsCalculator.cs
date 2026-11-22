@@ -104,6 +104,9 @@ public static class WrappedStatisticsCalculator
                     ? item.Record.ItemName : item.Record.SeriesName!)
                 .Distinct(StringComparer.OrdinalIgnoreCase).Count(),
             ActiveDays = activeDates.Length,
+            CoverageStartUtc = records.Length == 0 ? null : records[0].StartedAtUtc.ToUniversalTime(),
+            CoverageEndUtc = records.Length == 0 ? null : records[^1].StartedAtUtc.ToUniversalTime(),
+            MonthsWithActivity = monthly.Count(item => item.Plays > 0),
             LongestStreakDays = GetLongestStreak(activeDates),
             CompletedPlays = completed,
             CompletionRatePercent = records.Length == 0 ? 0 : completed * 100d / records.Length,
