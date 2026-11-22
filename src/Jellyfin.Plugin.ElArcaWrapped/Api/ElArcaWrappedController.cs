@@ -4,7 +4,7 @@ using Jellyfin.Plugin.ElArcaWrapped.Export;
 using Jellyfin.Plugin.ElArcaWrapped.Services;
 using Jellyfin.Plugin.ElArcaWrapped.Statistics;
 using MediaBrowser.Common.Api;
-using MediaBrowser.Controller.Users;
+using MediaBrowser.Controller.Library;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
