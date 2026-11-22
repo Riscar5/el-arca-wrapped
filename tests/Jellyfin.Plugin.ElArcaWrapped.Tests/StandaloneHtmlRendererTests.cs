@@ -27,6 +27,7 @@ public sealed class StandaloneHtmlRendererTests
         Assert.Contains("User &lt;img src=x onerror=alert(1)&gt;", html);
         Assert.Contains("Film &lt;script&gt;alert(1)&lt;/script&gt;", html);
         Assert.DoesNotContain("<script>alert(1)</script>", html);
-        Assert.Contains("Feb", html, StringComparison.OrdinalIgnoreCase);\n        Assert.Contains("Tus géneros", html);\n        Assert.Contains("Drama", html);\n        Assert.Contains("Tu horario", html);\n        Assert.Contains("Tus días", html);
+        Assert.Contains("Feb", html, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Tus géneros", html);\n        Assert.Contains("Drama", html);\n        Assert.Contains("Tu horario", html);\n        Assert.Contains("Tus días", html);
     }
 }
