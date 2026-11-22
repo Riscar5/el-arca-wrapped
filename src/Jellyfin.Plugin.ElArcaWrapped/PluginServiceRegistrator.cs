@@ -17,6 +17,7 @@ public sealed class PluginServiceRegistrator : IPluginServiceRegistrator
     {
         serviceCollection.AddSingleton<PlaybackSessionStore>();
         serviceCollection.AddSingleton<StandaloneHtmlRenderer>();
+        serviceCollection.AddSingleton<ArtworkEmbedder>();
         serviceCollection.AddScoped<PlaybackEventConsumer>();
         serviceCollection.AddScoped<IEventConsumer<PlaybackStartEventArgs>>(
             provider => provider.GetRequiredService<PlaybackEventConsumer>());
