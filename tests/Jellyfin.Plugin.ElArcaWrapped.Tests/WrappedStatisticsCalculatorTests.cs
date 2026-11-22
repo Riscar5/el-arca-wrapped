@@ -53,6 +53,8 @@ public sealed class WrappedStatisticsCalculatorTests
         Assert.Equal(1, result.CompletedPlays);
         Assert.Equal(100d / 3, result.CompletionRatePercent, 1);
         Assert.Equal(100, result.LongestViewingDayMinutes, 1);
+        Assert.Equal(100, result.LongestPlayMinutes, 1);
+        Assert.Equal("Film A", result.LongestPlayItemName);
         Assert.Equal(3, result.HourlyActivityUtc[0].Plays);
         Assert.Equal(1, result.WeekdayActivityUtc[(int)DayOfWeek.Thursday].Plays);
     }
@@ -102,6 +104,8 @@ public sealed class WrappedStatisticsCalculatorTests
         Assert.Equal(0, result.AverageMinutesPerPlay);
         Assert.Equal(0, result.CompletionRatePercent);
         Assert.Equal(0, result.LongestViewingDayMinutes);
+        Assert.Equal(0, result.LongestPlayMinutes);
+        Assert.Null(result.LongestPlayItemName);
     }
 
     [Fact]
@@ -119,6 +123,8 @@ public sealed class WrappedStatisticsCalculatorTests
         Assert.Equal(1, result.LongestStreakDays);
         Assert.Equal(1, result.RepeatPlays);
         Assert.Equal(60, result.LongestViewingDayMinutes, 1);
+        Assert.Equal(60, result.LongestPlayMinutes, 1);
+        Assert.Equal("Film", result.LongestPlayItemName);
     }
     [Fact]
     public void UsesUtcForYearMonthHourAndWeekdayBuckets()
