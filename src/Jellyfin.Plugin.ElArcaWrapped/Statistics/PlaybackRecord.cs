@@ -24,7 +24,7 @@ public sealed record PlaybackRecord
     public IReadOnlyList<string> Genres { get; init; } = Array.Empty<string>();
 }
 
-public sealed record RankedItem(string Name, int Plays, double MinutesWatched);
+public sealed record RankedItem(string Name, int Plays, double MinutesWatched, Guid? ArtworkItemId = null, string? ArtworkDataUri = null);
 public sealed record MonthlyActivity(int Month, int Plays, double MinutesWatched);
 public sealed record GenreActivity(string Genre, int Plays, double MinutesWatched);
 public sealed record HourlyActivity(int HourUtc, int Plays, double MinutesWatched);
