@@ -25,7 +25,7 @@ An administrator selects a year and one or more users, previews each recap and e
 - A user-scoped, serializable report data contract now packages display name, year, generated timestamp, and statistics for the future renderer.
 - First self-contained HTML renderer implemented: mobile-responsive layout, monthly activity bars, top movie/series lists, personal records, coverage note, and HTML-escaped user/item text. New insight sections show genres, movie decades, UTC viewing-hour patterns, and weekdays using responsive bar visualizations. The HTML export now attempts to embed small JPEG primary-image thumbnails for ranked movies and series; missing, unsupported or oversized artwork falls back to text-only ranking rows.
 - Admin-only REST endpoints added for listing users, previewing a selected annual report, and downloading the standalone HTML export.
-- Plugin configuration page now includes user/year selection and preview/download actions. The controller, admin-only API endpoints, UI integration, and export flow have passed CI; validation on a real Jellyfin server remains pending.
+- Plugin configuration page now includes user/year selection and preview/download actions. The controller, admin-only API endpoints, UI integration, export flow, and embedded artwork path have passed CI; validation on a real Jellyfin server remains pending.
 - Administrator interface for year/user selection, preview and export.
 - Standalone responsive HTML with embedded CSS, JavaScript and required data; offline use is a core requirement.
 
@@ -48,7 +48,7 @@ Viewing hours and counts; films, episodes and series; active days; viewing patte
 
 
 
-**Next priorities:** audit session grouping when Jellyfin omits `PlaySessionId` (fallback can merge repeated playback of the same item/device), improve series artwork to use series-level primary images rather than episode artwork when possible, and prepare the first real-server validation checklist. Tracking remains disabled by default; no NAS installation yet.
+**Next priorities:** fallback session-ID grouping now generates a unique ID on each playback start and reuses it for progress/stop events when Jellyfin omits the ID; unit tests cover the resolver. Improve series artwork to use series-level primary images rather than episode artwork when possible, add stronger capture-event integration coverage, and prepare the first real-server validation checklist. Tracking remains disabled by default; no NAS installation yet.
 
 1. Verify Jellyfin server version and official plugin template/API compatibility.
 2. Create the compilable plugin project and CI build.
