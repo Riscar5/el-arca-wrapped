@@ -48,7 +48,7 @@ Viewing hours and counts; films, episodes and series; active days; viewing patte
 
 
 
-**Next priorities:** fallback session-ID grouping now generates a unique ID on each playback start and reuses it for progress/stop events when Jellyfin omits the ID; unit tests cover the resolver. Improve series artwork to use series-level primary images rather than episode artwork when possible, add stronger capture-event integration coverage, and prepare the first real-server validation checklist. Tracking remains disabled by default; no NAS installation yet.
+**Next priorities:** fallback session-ID grouping now generates a unique ID on each playback start and reuses it for progress/stop events when Jellyfin omits the ID; unit tests cover the resolver. Series ranking artwork now resolves the parent Series primary image when available, falling back to episode artwork if Jellyfin cannot resolve it. Next: add stronger capture-event integration coverage and prepare the first real-server validation checklist. Tracking remains disabled by default; no NAS installation yet.
 
 1. Verify Jellyfin server version and official plugin template/API compatibility.
 2. Create the compilable plugin project and CI build.
