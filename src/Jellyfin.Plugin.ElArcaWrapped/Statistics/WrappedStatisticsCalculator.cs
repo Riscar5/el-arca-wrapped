@@ -56,6 +56,15 @@ public static class WrappedStatisticsCalculator
             }
         }
 
+        var movieDecades = movies
+            .Where(item => item.Record.ProductionYear is >= 1900 and <= 9999)
+            .GroupBy(item => (item.Record.ProductionYear!.Value / 10) * 10)
+            .Select(group => new DecadeActivity(group.Key, group.Count(), group.Sum(item => item.Minutes)))
+            .OrderByDescending(item => item.MinutesWatched)
+            .ThenByDescending(item => item.Plays)
+            .ThenBy(item => item.Decade)
+            .ToArray();
+
         var topGenres = genreCounts
             .OrderByDescending(pair => pair.Value.Minutes)
             .ThenByDescending(pair => pair.Value.Plays)
@@ -98,7 +107,8 @@ public static class WrappedStatisticsCalculator
             TopMovies = RankItems(movies, record => record.ItemName),
             TopSeries = RankItems(episodes,
                 record => string.IsNullOrWhiteSpace(record.SeriesName) ? record.ItemName : record.SeriesName!),
-            TopGenres = topGenres
+            TopGenres = topGenres,
+            MovieDecades = movieDecades
         };
     }
 
