@@ -78,18 +78,20 @@ public sealed class StandaloneHtmlRenderer
     private static void RenderInsightBars(StringBuilder sb, string kicker, string heading, IEnumerable<(string Label, double Minutes, int Plays)> source)
     {
         var items = source.Where(item => item.Minutes > 0 || item.Plays > 0).ToArray();
-        sb.Append("<section class=\\"story\\"><p class=\\"kicker\\">"); sb.Append(E(kicker)); sb.Append("</p><h2>"); sb.Append(E(heading)); sb.Append("</h2>");
+        sb.Append("<section class=\"story\"><p class=\"kicker\">"); sb.Append(E(kicker)); sb.Append("</p><h2>"); sb.Append(E(heading)); sb.Append("</h2>");
         if (items.Length == 0)
         {
-            sb.Append("<p class=\\"muted\\">No hay datos suficientes.</p></section>");
+            sb.Append("<p class=\"muted\">No hay datos suficientes.</p></section>");
             return;
         }
         var max = Math.Max(1, items.Max(item => item.Minutes));
-        sb.Append("<div class=\\"insight-bars\\">");
+        sb.Append("<div class=\"insight-bars\">");
         foreach (var item in items)
         {
             var width = Math.Clamp(item.Minutes / max * 100, 0, 100).ToString("0.0", CultureInfo.InvariantCulture);
-            sb.Append("<div class=\\"insight-row\\"><div class=\\"insight-label\\"><strong>"); sb.Append(E(item.Label)); sb.Append("</strong><small>"); sb.Append(item.Plays.ToString("N0", CultureInfo.InvariantCulture)); sb.Append(" reproducciones · "); sb.Append(FormatMinutes(item.Minutes)); sb.Append("</small></div><div class=\\"insight-track\\"><div class=\\"insight-fill\\" style=\\"width:"); sb.Append(width); sb.Append("%\\"></div></div></div>");
+            sb.Append("<div class=\"insight-row\"><div class=\"insight-label\"><strong>"); sb.Append(E(item.Label)); sb.Append("</strong><small>"); sb.Append(item.Plays.ToString("N0", CultureInfo.InvariantCulture)); sb.Append(" reproducciones · "); sb.Append(FormatMinutes(item.Minutes)); sb.Append("</small></div><div class=\"insight-track\"><div class=\"insight-fill\" style=\"width:");
+            sb.Append(width);
+            sb.Append("%\"></div></div></div>");
         }
         sb.Append("</div></section>");
     }
