@@ -48,6 +48,8 @@ Viewing hours and counts; films, episodes and series; active days; viewing patte
 
 
 
+**Next priorities:** audit session grouping when Jellyfin omits `PlaySessionId` (fallback can merge repeated playback of the same item/device), improve series artwork to use series-level primary images rather than episode artwork when possible, and prepare the first real-server validation checklist. Tracking remains disabled by default; no NAS installation yet.
+
 1. Verify Jellyfin server version and official plugin template/API compatibility.
 2. Create the compilable plugin project and CI build.
 3. Implement playback event capture and SQLite persistence.
