@@ -100,8 +100,8 @@ public static class WrappedStatisticsCalculator
             MoviePlays = movies.Length,
             EpisodePlays = episodes.Length,
             UniqueMovies = movies.Select(item => item.Record.ItemId).Distinct(StringComparer.Ordinal).Count(),
-            UniqueSeries = episodes.Select(item => string.IsNullOrWhiteSpace(item.Record.SeriesName)
-                    ? item.Record.ItemName : item.Record.SeriesName!)
+            UniqueSeries = episodes.Where(item => !string.IsNullOrWhiteSpace(item.Record.SeriesName))
+                .Select(item => item.Record.SeriesName!)
                 .Distinct(StringComparer.OrdinalIgnoreCase).Count(),
             ActiveDays = activeDates.Length,
             CoverageStartUtc = records.Length == 0 ? null : records[0].StartedAtUtc.ToUniversalTime(),
@@ -114,8 +114,8 @@ public static class WrappedStatisticsCalculator
             HourlyActivityUtc = hourly,
             WeekdayActivityUtc = weekdays,
             TopMovies = RankItems(movies, record => record.ItemName),
-            TopSeries = RankItems(episodes,
-                record => string.IsNullOrWhiteSpace(record.SeriesName) ? record.ItemName : record.SeriesName!),
+            TopSeries = RankItems(episodes.Where(item => !string.IsNullOrWhiteSpace(item.Record.SeriesName)),
+                record => record.SeriesName!),
             TopGenres = topGenres,
             MovieDecades = movieDecades
         };
