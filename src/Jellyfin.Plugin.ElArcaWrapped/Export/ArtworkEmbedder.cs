@@ -1,5 +1,6 @@
 using Jellyfin.Plugin.ElArcaWrapped.Statistics;
 using MediaBrowser.Controller.Drawing;
+using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Model.Drawing;
 using MediaBrowser.Model.Entities;
@@ -25,8 +26,8 @@ public sealed class ArtworkEmbedder
     public async Task<WrappedReportData> EmbedAsync(WrappedReportData report)
     {
         ArgumentNullException.ThrowIfNull(report);
-        var movies = await EmbedItemsAsync(report.Statistics.TopMovies).ConfigureAwait(false);
-        var series = await EmbedItemsAsync(report.Statistics.TopSeries).ConfigureAwait(false);
+        var movies = await EmbedItemsAsync(report.Statistics.TopMovies, preferSeriesArtwork: false).ConfigureAwait(false);
+        var series = await EmbedItemsAsync(report.Statistics.TopSeries, preferSeriesArtwork: true).ConfigureAwait(false);
         return report with
         {
             Statistics = report.Statistics with
@@ -37,7 +38,7 @@ public sealed class ArtworkEmbedder
         };
     }
 
-    private async Task<IReadOnlyList<RankedItem>> EmbedItemsAsync(IReadOnlyList<RankedItem> ranked)
+    private async Task<IReadOnlyList<RankedItem>> EmbedItemsAsync(IReadOnlyList<RankedItem> ranked, bool preferSeriesArtwork)
     {
         var result = new List<RankedItem>(ranked.Count);
         foreach (var item in ranked)
@@ -51,6 +52,12 @@ public sealed class ArtworkEmbedder
             try
             {
                 var libraryItem = _libraryManager.GetItemById(itemId);
+                // Ranked series currently carry a representative episode ID; resolve the parent
+                // series so the exported artwork is a series poster rather than episode still.
+                if (preferSeriesArtwork && libraryItem is Episode episode && episode.Series is { } parentSeries)
+                {
+                    libraryItem = parentSeries;
+                }
                 var image = libraryItem?.GetImageInfo(ImageType.Primary, 0);
                 if (libraryItem is null || image is null || string.IsNullOrWhiteSpace(image.Path))
                 {
