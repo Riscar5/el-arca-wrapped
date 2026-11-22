@@ -119,6 +119,84 @@ public sealed class PlaybackSessionStoreTests
         }
     }
 
+    [Fact]
+    public async Task EnsureDatabaseMigratesLegacyTableMetadataColumns()
+    {
+        var databasePath = Path.Combine(Path.GetTempPath(), $"el-arca-wrapped-{Guid.NewGuid():N}.db");
+        try
+        {
+            await using (var connection = new SqliteConnection(new SqliteConnectionStringBuilder
+            {
+                DataSource = databasePath,
+                Mode = SqliteOpenMode.ReadWriteCreate
+            }.ToString()))
+            {
+                await connection.OpenAsync();
+                await using var command = connection.CreateCommand();
+                command.CommandText = """
+                    CREATE TABLE PlaybackSessions (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        PlaySessionId TEXT NOT NULL,
+                        UserId TEXT NOT NULL,
+                        Username TEXT NOT NULL,
+                        ItemId TEXT NOT NULL,
+                        ItemName TEXT NOT NULL,
+                        ItemType TEXT NOT NULL,
+                        StartedAtUtc TEXT NOT NULL,
+                        LastEventAtUtc TEXT NOT NULL,
+                        EndedAtUtc TEXT NULL,
+                        LastPositionTicks INTEGER NULL,
+                        RuntimeTicks INTEGER NULL,
+                        IsPaused INTEGER NOT NULL DEFAULT 0,
+                        PlayedToCompletion INTEGER NOT NULL DEFAULT 0,
+                        ClientName TEXT NOT NULL DEFAULT '',
+                        DeviceName TEXT NOT NULL DEFAULT '',
+                        DeviceId TEXT NOT NULL DEFAULT '',
+                        UNIQUE (PlaySessionId, UserId)
+                    );
+                    INSERT INTO PlaybackSessions (PlaySessionId, UserId, Username, ItemId, ItemName, ItemType, StartedAtUtc, LastEventAtUtc)
+                    VALUES ('legacy-session', 'legacy-user', 'Legacy', 'legacy-item', 'Legacy Film', 'Movie', '2024-01-01T00:00:00+00:00', '2024-01-01T00:00:00+00:00');
+                    """;
+                await command.ExecuteNonQueryAsync();
+            }
+
+            var store = new PlaybackSessionStore(databasePath);
+            await store.EnsureDatabaseAsync();
+            await store.EnsureDatabaseAsync();
+
+            await using var migrated = new SqliteConnection(new SqliteConnectionStringBuilder
+            {
+                DataSource = databasePath,
+                Mode = SqliteOpenMode.ReadOnly
+            }.ToString());
+            await migrated.OpenAsync();
+            await using var columns = migrated.CreateCommand();
+            columns.CommandText = "PRAGMA table_info(PlaybackSessions);";
+            await using var reader = await columns.ExecuteReaderAsync();
+            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            while (await reader.ReadAsync()) names.Add(reader.GetString(1));
+            Assert.Contains("WatchedTicks", names);
+            Assert.Contains("GenresJson", names);
+            Assert.Contains("SeriesName", names);
+            Assert.Contains("ProductionYear", names);
+            Assert.Contains("SeasonNumber", names);
+            Assert.Contains("EpisodeNumber", names);
+            Assert.Contains("PrimaryImagePath", names);
+            Assert.Contains("legacy-session", await GetScalarTextAsync(migrated, "SELECT PlaySessionId FROM PlaybackSessions;"));
+        }
+        finally
+        {
+            if (File.Exists(databasePath)) File.Delete(databasePath);
+        }
+    }
+
+    private static async Task<string> GetScalarTextAsync(SqliteConnection connection, string sql)
+    {
+        await using var command = connection.CreateCommand();
+        command.CommandText = sql;
+        return (string)(await command.ExecuteScalarAsync())!;
+    }
+
     private static async Task InsertAsync(
         SqliteConnection connection, string sessionId, string userId, string name, string type,
         string started, string ended, long runtime, bool completed)
