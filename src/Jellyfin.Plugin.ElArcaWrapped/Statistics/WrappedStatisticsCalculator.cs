@@ -153,12 +153,18 @@ public static class WrappedStatisticsCalculator
         IEnumerable<(PlaybackRecord Record, double Minutes)> items,
         Func<PlaybackRecord, string> nameSelector)
     {
-        var aggregates = new Dictionary<string, (int Plays, double Minutes)>(StringComparer.OrdinalIgnoreCase);
+        var aggregates = new Dictionary<string, (int Plays, double Minutes, Guid? ArtworkItemId)>(StringComparer.OrdinalIgnoreCase);
         foreach (var (record, watchedMinutes) in items)
         {
             var name = nameSelector(record);
             var current = aggregates.GetValueOrDefault(name);
-            aggregates[name] = (current.Plays + 1, current.Minutes + watchedMinutes);
+            Guid? artworkItemId = current.ArtworkItemId;
+            if (artworkItemId is null && Guid.TryParse(record.ItemId, out var parsedItemId))
+            {
+                artworkItemId = parsedItemId;
+            }
+
+            aggregates[name] = (current.Plays + 1, current.Minutes + watchedMinutes, artworkItemId);
         }
 
         return aggregates
@@ -166,7 +172,7 @@ public static class WrappedStatisticsCalculator
             .ThenByDescending(pair => pair.Value.Plays)
             .ThenBy(pair => pair.Key, StringComparer.OrdinalIgnoreCase)
             .Take(10)
-            .Select(pair => new RankedItem(pair.Key, pair.Value.Plays, pair.Value.Minutes))
+            .Select(pair => new RankedItem(pair.Key, pair.Value.Plays, pair.Value.Minutes, pair.Value.ArtworkItemId))
             .ToArray();
     }
 
