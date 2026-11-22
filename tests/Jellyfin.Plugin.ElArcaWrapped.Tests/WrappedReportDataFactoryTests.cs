@@ -18,6 +18,6 @@ public sealed class WrappedReportDataFactoryTests
         Assert.Equal(2026, report.Year);
         Assert.Equal(generated.ToUniversalTime(), report.GeneratedAtUtc);
         Assert.Same(stats, report.Statistics);
-        Assert.Contains("captured", report.CoverageNote, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("capturada", report.CoverageNote, StringComparison.OrdinalIgnoreCase);
     }
 }
