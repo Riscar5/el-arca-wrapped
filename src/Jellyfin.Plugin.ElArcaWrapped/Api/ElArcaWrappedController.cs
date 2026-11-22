@@ -20,12 +20,14 @@ public sealed class ElArcaWrappedController : ControllerBase
     private readonly PlaybackSessionStore _store;
     private readonly IUserManager _userManager;
     private readonly StandaloneHtmlRenderer _renderer;
+    private readonly ArtworkEmbedder _artworkEmbedder;
 
-    public ElArcaWrappedController(PlaybackSessionStore store, IUserManager userManager, StandaloneHtmlRenderer renderer)
+    public ElArcaWrappedController(PlaybackSessionStore store, IUserManager userManager, StandaloneHtmlRenderer renderer, ArtworkEmbedder artworkEmbedder)
     {
         _store = store;
         _userManager = userManager;
         _renderer = renderer;
+        _artworkEmbedder = artworkEmbedder;
     }
 
     /// <summary>Returns selectable Jellyfin users (admin-only endpoint).</summary>
@@ -56,6 +58,7 @@ public sealed class ElArcaWrappedController : ControllerBase
     {
         var report = await PreviewReportAsync(userId, year).ConfigureAwait(false);
         if (report is null) return NotFound();
+        report = await _artworkEmbedder.EmbedAsync(report).ConfigureAwait(false);
         var html = _renderer.Render(report);
         var filename = $"El-Arca-Wrapped-{year}-{SafeFilename(report.DisplayName)}.html";
         return File(System.Text.Encoding.UTF8.GetBytes(html), "text/html; charset=utf-8", filename);
