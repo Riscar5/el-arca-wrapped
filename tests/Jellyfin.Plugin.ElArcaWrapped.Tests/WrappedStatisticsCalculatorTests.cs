@@ -63,6 +63,17 @@ public sealed class WrappedStatisticsCalculatorTests
     }
 
     [Fact]
+    public void RankedMovieKeepsGuidForArtworkLookup()
+    {
+        var itemId = Guid.Parse("9f5b2d8e-4c31-4a76-9d12-6b8e0f3a51c7");
+        var record = Record("u1", itemId.ToString("N"), "Film", "Movie", new DateTime(2026, 3, 4), 90);
+
+        var result = WrappedStatisticsCalculator.Calculate([record], "u1", 2026);
+
+        Assert.Equal(itemId, Assert.Single(result.TopMovies).ArtworkItemId);
+    }
+
+    [Fact]
     public void GroupsMoviesByDecadeUsingKnownProductionYear()
     {
         var records = new[]
