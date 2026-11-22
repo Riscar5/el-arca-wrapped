@@ -23,7 +23,7 @@ An administrator selects a year and one or more users, previews each recap and e
 - SQLite database stored in the plugin data directory.
 - Statistics service for yearly aggregation.
 - A user-scoped, serializable report data contract now packages display name, year, generated timestamp, and statistics for the future renderer.
-- First self-contained HTML renderer implemented: mobile-responsive layout, monthly activity bars, top movie/series lists, personal records, coverage note, and HTML-escaped user/item text. New insight sections show genres, movie decades, UTC viewing-hour patterns, and weekdays using responsive bar visualizations. Artwork embedding remains a future improvement.
+- First self-contained HTML renderer implemented: mobile-responsive layout, monthly activity bars, top movie/series lists, personal records, coverage note, and HTML-escaped user/item text. New insight sections show genres, movie decades, UTC viewing-hour patterns, and weekdays using responsive bar visualizations. The HTML export now attempts to embed small JPEG primary-image thumbnails for ranked movies and series; missing, unsupported or oversized artwork falls back to text-only ranking rows.
 - Admin-only REST endpoints added for listing users, previewing a selected annual report, and downloading the standalone HTML export.
 - Plugin configuration page now includes user/year selection and preview/download actions. The controller, admin-only API endpoints, UI integration, and export flow have passed CI; validation on a real Jellyfin server remains pending.
 - Administrator interface for year/user selection, preview and export.
@@ -39,7 +39,7 @@ Viewing hours and counts; films, episodes and series; active days; viewing patte
 
 - SQLite playback-session capture scaffold and database initialization tests.
 - First pure annual-statistics calculator, separated from Jellyfin event APIs for easier testing.
-- Playback rows now include metadata columns for genre, year, season/episode numbers, and a relative primary-image endpoint. The SQLite initializer adds these columns idempotently for existing installations. Image embedding into standalone HTML remains a future export-stage task.
+- Playback rows include metadata columns for genre, year, season/episode numbers, and a relative primary-image endpoint. The SQLite initializer adds these columns idempotently for existing installations. Standalone export now embeds bounded JPEG thumbnails when the server can process them.
 - Initial metrics: play count, watched minutes (runtime-capped), movie/episode counts, unique movies/series, active days, longest consecutive-day streak, completions, monthly activity, top movies/series and genres.
 - Automated tests cover user isolation, year filtering, repeated plays, runtime capping, empty years, monthly/streak calculations, completion rate, daily totals, and UTC hour/weekday distributions. CI validation is required before these metrics are considered verified.
 - Expanded metrics: average minutes per play, repeated plays (repeat sessions beyond the first play of each item), longest single-day viewing time, longest individual play (with item name), completion rate, start-time patterns by hour and weekday, film activity by decade, and captured activity coverage dates/months.
