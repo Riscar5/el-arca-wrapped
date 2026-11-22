@@ -83,6 +83,22 @@ public sealed class WrappedStatisticsCalculatorTests
 
 
     [Fact]
+    public void DoesNotCountEpisodesWithoutSeriesMetadataAsSeries()
+    {
+        var records = new[]
+        {
+            Record("u1", "e1", "Episode One", "Episode", new DateTime(2026, 6, 1), 30),
+            Record("u1", "e2", "Episode Two", "Episode", new DateTime(2026, 6, 2), 30)
+        };
+
+        var result = WrappedStatisticsCalculator.Calculate(records, "u1", 2026);
+
+        Assert.Equal(2, result.EpisodePlays);
+        Assert.Equal(0, result.UniqueSeries);
+        Assert.Empty(result.TopSeries);
+    }
+
+    [Fact]
     public void CapsWatchedDurationAtKnownRuntime()
     {
         var record = Record("u1", "m1", "Film", "Movie", new DateTime(2026, 2, 1), 150);
