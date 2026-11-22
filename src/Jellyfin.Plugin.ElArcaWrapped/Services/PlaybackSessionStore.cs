@@ -12,7 +12,7 @@ public sealed class PlaybackSessionStore
 {
     private readonly string _connectionString;
     private readonly string _databasePath;
-    private readonly SemaphoreSlim _initializationLock = new(1, 1);
+    private readonly SemaphoreSlim _initializationLock = new(1, 1);\n    private readonly FallbackPlaybackSessionIdResolver _fallbackSessionIds = new();
     private bool _initialized;
 
     public PlaybackSessionStore(IApplicationPaths applicationPaths)
@@ -37,7 +37,7 @@ public sealed class PlaybackSessionStore
     public async Task RecordAsync(
         PlaybackProgressEventArgs eventArgs,
         bool isStopped = false,
-        bool playedToCompletion = false)
+        bool playedToCompletion = false,\n        bool isStart = false)
     {
         if (eventArgs.Item is null || eventArgs.Item.IsThemeMedia || eventArgs.Users.Count == 0)
         {
@@ -45,19 +45,16 @@ public sealed class PlaybackSessionStore
         }
 
         var item = eventArgs.Item;
-        var playSessionId = eventArgs.PlaySessionId;
-        if (string.IsNullOrWhiteSpace(playSessionId))
+        var knownPlaySessionId = eventArgs.PlaySessionId;
+        if (string.IsNullOrWhiteSpace(knownPlaySessionId))
         {
-            playSessionId = eventArgs.Session?.Id;
+            knownPlaySessionId = eventArgs.Session?.Id;
         }
 
-        if (string.IsNullOrWhiteSpace(playSessionId))
-        {
-            // Keep progress updates grouped if a client omits Jellyfin's play-session identifier.
-            // This fallback is intentionally best-effort and can merge repeated plays on the same device.
-            var clientKey = eventArgs.DeviceId ?? eventArgs.DeviceName ?? eventArgs.ClientName ?? "unknown-client";
-            playSessionId = $"fallback:{clientKey}:{item.Id:N}";
-        }
+        var usersKey = string.Join(",", eventArgs.Users.Select(user => user.Id.ToString("N")).OrderBy(value => value, StringComparer.Ordinal));
+        var clientKey = eventArgs.DeviceId ?? eventArgs.DeviceName ?? eventArgs.ClientName ?? "unknown-client";
+        var fallbackKey = $"{usersKey}|{clientKey}|{item.Id:N}";
+        var playSessionId = _fallbackSessionIds.Resolve(fallbackKey, knownPlaySessionId, isStart, isStopped);
 
         await EnsureDatabaseAsync().ConfigureAwait(false);
 
