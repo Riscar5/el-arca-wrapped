@@ -118,18 +118,21 @@ public sealed class PlaybackSessionStore
                 previous.Parameters.AddWithValue("$playSessionId", playSessionId);
                 previous.Parameters.AddWithValue("$userId", user.Id.ToString("N"));
                 await using var previousReader = await previous.ExecuteReaderAsync().ConfigureAwait(false);
-                if (await previousReader.ReadAsync().ConfigureAwait(false) &&
-                    !previousReader.IsDBNull(1) &&
-                    !previousReader.GetBoolean(2) &&
-                    !eventArgs.IsPaused &&
-                    eventArgs.PlaybackPositionTicks is long currentPosition &&
-                    currentPosition > previousReader.GetInt64(1))
+                if (await previousReader.ReadAsync().ConfigureAwait(false))
                 {
                     var previousAt = DateTimeOffset.Parse(
                         previousReader.GetString(0),
                         System.Globalization.CultureInfo.InvariantCulture);
-                    var elapsedTicks = Math.Max(0, (nowOffset - previousAt).Ticks);
-                    watchedDeltaTicks = Math.Min(currentPosition - previousReader.GetInt64(1), elapsedTicks);
+                    var previousPosition = previousReader.IsDBNull(1)
+                        ? (long?)null
+                        : previousReader.GetInt64(1);
+
+                    watchedDeltaTicks = PlaybackTimeCalculator.CalculateWatchedDeltaTicks(
+                        previousAt,
+                        previousPosition,
+                        previousReader.GetBoolean(2),
+                        eventArgs.PlaybackPositionTicks,
+                        nowOffset);
                 }
             }
             command.Parameters.AddWithValue("$playSessionId", playSessionId);
