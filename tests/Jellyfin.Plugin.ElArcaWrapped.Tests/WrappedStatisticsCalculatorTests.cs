@@ -117,6 +117,17 @@ public sealed class WrappedStatisticsCalculatorTests
     }
 
     [Fact]
+    public void DoesNotUseElapsedFallbackWhenTrackedWatchedTimeIsZero()
+    {
+        var record = Record("u1", "m1", "Film", "Movie", new DateTime(2026, 5, 1), 60)
+            with { WatchedTicks = 0 };
+
+        var result = WrappedStatisticsCalculator.Calculate([record], "u1", 2026);
+
+        Assert.Equal(0, result.TotalMinutesWatched);
+    }
+
+    [Fact]
     public void FallsBackToElapsedTimeAndCapsAtRuntime()
     {
         var record = Record("u1", "m1", "Film", "Movie", new DateTime(2026, 5, 1), 60)
