@@ -41,6 +41,9 @@ public sealed class WrappedStatisticsCalculatorTests
         Assert.Equal(1, result.UniqueMovies);
         Assert.Equal(1, result.UniqueSeries);
         Assert.Equal(3, result.ActiveDays);
+        Assert.Equal(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero), result.CoverageStartUtc);
+        Assert.Equal(new DateTimeOffset(2026, 1, 3, 0, 0, 0, TimeSpan.Zero), result.CoverageEndUtc);
+        Assert.Equal(1, result.MonthsWithActivity);
         Assert.Equal(3, result.LongestStreakDays);
         Assert.Equal(3, result.MonthlyActivity[0].Plays);
         Assert.Equal(0, result.MonthlyActivity[1].Plays);
@@ -98,6 +101,9 @@ public sealed class WrappedStatisticsCalculatorTests
         Assert.Equal(0, result.TotalPlays);
         Assert.Equal(0, result.TotalMinutesWatched);
         Assert.Equal(0, result.LongestStreakDays);
+        Assert.Null(result.CoverageStartUtc);
+        Assert.Null(result.CoverageEndUtc);
+        Assert.Equal(0, result.MonthsWithActivity);
         Assert.Equal(12, result.MonthlyActivity.Count);
         Assert.Equal(24, result.HourlyActivityUtc.Count);
         Assert.Equal(7, result.WeekdayActivityUtc.Count);
