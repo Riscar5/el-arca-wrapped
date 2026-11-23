@@ -64,3 +64,9 @@ The detailed checklist is in [REAL_SERVER_VALIDATION.md](REAL_SERVER_VALIDATION.
 - No extra Docker container or external service.
 - No Telegram bot, user comparisons, or PDF export in the initial scope.
 - Prefer reversible tests; avoid changes to Jellyfin media and existing metadata.
+## API compatibility review (2026-11-23)
+
+- Cross-checked the playback consumer interfaces against Jellyfin 12.4 API documentation/source: playback start, progress and stop event args are available and expose the item, users, playback position, pause state, completion state and play-session identifier used by this implementation.
+- The plugin consumer uses `IEventConsumer<T>.OnEvent` for all three event types and registers each interface through the plugin service registrator.
+- This source/API check is not a substitute for runtime validation: event delivery order and timing, configuration-page behavior, native SQLite loading and real client pause/seek/stop handling still require the planned live-server test.
+- Review focus for the first live test: normal start/progress/stop; pause and resume; forward seek; repeated playback; fallback ID grouping when `PlaySessionId` is missing; and report isolation by user.
