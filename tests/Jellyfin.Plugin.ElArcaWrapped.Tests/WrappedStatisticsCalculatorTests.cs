@@ -63,6 +63,28 @@ public sealed class WrappedStatisticsCalculatorTests
     }
 
     [Fact]
+    public void ExcludesNonFilmAndNonEpisodePlaybackFromVideoRecap()
+    {
+        var records = new[]
+        {
+            Record("u1", "m1", "Film", "Movie", new DateTime(2026, 1, 1), 90),
+            Record("u1", "e1", "Episode", "Episode", new DateTime(2026, 1, 2), 45, "Series"),
+            Record("u1", "music1", "Song", "Audio", new DateTime(2026, 1, 3), 240),
+            Record("u1", "extra1", "Bonus Feature", "Video", new DateTime(2026, 1, 4), 30)
+        };
+
+        var result = WrappedStatisticsCalculator.Calculate(records, "u1", 2026);
+
+        Assert.Equal(2, result.TotalPlays);
+        Assert.Equal(135, result.TotalMinutesWatched, 1);
+        Assert.Equal(1, result.MoviePlays);
+        Assert.Equal(1, result.EpisodePlays);
+        Assert.Equal(2, result.ActiveDays);
+        Assert.Equal(2, result.MonthlyActivity[0].Plays);
+    }
+
+
+    [Fact]
     public void RankedMovieKeepsGuidForArtworkLookup()
     {
         var itemId = Guid.Parse("9f5b2d8e-4c31-4a76-9d12-6b8e0f3a51c7");
