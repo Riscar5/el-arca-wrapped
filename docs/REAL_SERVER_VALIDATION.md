@@ -4,8 +4,10 @@ This checklist is for the first installation on the target Jellyfin server. It i
 
 ## Before installation
 
-- [ ] Confirm the Jellyfin server version is compatible with the plugin build.
-- [ ] Back up the Jellyfin configuration/data directory and note the current container image/tag.
+- [x] Confirmed target server: Jellyfin **12.4**.
+- [x] Confirmed current container image reference: `jellyfin/jellyfin:latest`.
+- [ ] Before installation, capture the running container's exact image ID/digest as well as the `latest` tag. The tag is mutable, so rollback must use the exact currently running image, not whatever `latest` points to later.
+- [ ] Back up the Jellyfin configuration/data directory and note the current container image ID/digest.
 - [ ] Keep the existing media library and metadata unchanged.
 - [ ] Install only a build explicitly marked for this validation; do not replace the production image or update Jellyfin as part of the test.
 - [ ] Confirm the plugin's tracking setting is **disabled** after installation.
@@ -44,3 +46,8 @@ Choose a test user and one short film or episode. Keep the test playback device/
 ## Record results
 
 Capture: Jellyfin version, plugin build/commit, client/device used, test item type, test sequence, approximate active watch time, report totals, log errors, and whether the exported HTML worked offline. Use this to decide which behavior needs adjustment before the first public release.
+
+
+## Target server details confirmed (2026-11-23)
+
+The administrator confirmed Jellyfin 12.4 and Docker image reference `jellyfin/jellyfin:latest`. This matches the plugin's declared 12.4.0.0 target ABI. Because `latest` can move, the exact running image ID/digest must be recorded before any plugin installation or container recreation; do not pull a newer image as part of this test.
