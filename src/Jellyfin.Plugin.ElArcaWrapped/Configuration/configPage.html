@@ -19,10 +19,6 @@
                         </label>
                         <div class="fieldDescription">Al activarla, se guardarán localmente los eventos de reproducción recibidos por Jellyfin. No recupera actividad anterior a su instalación.</div>
                     </div>
-                    <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="StaleSessionDays">Días para considerar obsoleta una sesión incompleta</label>
-                        <input id="StaleSessionDays" name="StaleSessionDays" type="number" is="emby-input" min="1" max="30" />
-                    </div>
 
                     <hr />
                     <h3>Generar Wrapped</h3>
@@ -60,7 +56,6 @@
                     Dashboard.showLoadingMsg();
                     ApiClient.getPluginConfiguration(ElArcaWrappedConfig.pluginUniqueId).then(function (config) {
                         document.querySelector('#TrackingEnabled').checked = config.TrackingEnabled === true;
-                        document.querySelector('#StaleSessionDays').value = config.StaleSessionDays ?? 2;
                         Dashboard.hideLoadingMsg();
                     });
                 });
@@ -139,7 +134,6 @@
                     Dashboard.showLoadingMsg();
                     ApiClient.getPluginConfiguration(ElArcaWrappedConfig.pluginUniqueId).then(function (config) {
                         config.TrackingEnabled = document.querySelector('#TrackingEnabled').checked;
-                        config.StaleSessionDays = Math.min(30, Math.max(1, Number(document.querySelector('#StaleSessionDays').value) || 2));
                         return ApiClient.updatePluginConfiguration(ElArcaWrappedConfig.pluginUniqueId, config);
                     }).then(function (result) {
                         Dashboard.processPluginConfigurationUpdateResult(result);
