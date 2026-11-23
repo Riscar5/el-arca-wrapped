@@ -70,3 +70,13 @@ The detailed checklist is in [REAL_SERVER_VALIDATION.md](REAL_SERVER_VALIDATION.
 - The plugin consumer uses `IEventConsumer<T>.OnEvent` for all three event types and registers each interface through the plugin service registrator.
 - This source/API check is not a substitute for runtime validation: event delivery order and timing, configuration-page behavior, native SQLite loading and real client pause/seek/stop handling still require the planned live-server test.
 - Review focus for the first live test: normal start/progress/stop; pause and resume; forward seek; repeated playback; fallback ID grouping when `PlaySessionId` is missing; and report isolation by user.
+
+
+## Validation package inspection (2026-11-23)
+
+- Fresh CI artifact from run `45234150163` (commit `0174f8b5`): `el-arca-wrapped-validation-package`, artifact ID `14848053339`; expires 2026-12-07.
+- Downloaded and inspected both ZIP layers. Outer artifact contains the JPRM package `el-arca-wrapped_0.1.0.0.zip`; inner package contains the plugin assembly, metadata, managed SQLite dependencies and native SQLite runtime.
+- Verified `libe_sqlite3.so` is ELF 64-bit x86-64, matching the target Synology architecture.
+- Package metadata identifies plugin version `0.1.0.0`, target ABI `12.4.0.0`, and explicitly states it is a development validation build pending live-server testing.
+- SHA-256 outer artifact ZIP (downloaded inspection copy): `c1cd28718bb7fab56e16d172af3cee1554fe9bd33f6e2db3805acdbad814e4ac`. Inner plugin package SHA-256: `057d44c6e6bb7629a6355eded3ea35397b51a384b755c9e3293b49657cb0a2b8`.
+- No installation performed. The next gate remains live Jellyfin validation with backup and rollback.
