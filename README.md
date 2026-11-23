@@ -2,33 +2,41 @@
 
 A Jellyfin plugin for creating personalized annual viewing recaps for each server user.
 
-El Arca Wrapped aims to turn a user's viewing activity into a polished, standalone annual recap: films, series, episodes, genres, viewing time, milestones and personal records.
+The report is designed to feel like a yearly recap: viewing time, films and episodes, series rankings, genres, viewing patterns, personal milestones and records, with a self-contained HTML export that can be opened offline.
 
 ## Project status
 
-**Early development — not yet functional or installable.**
+**Development build — not yet validated or installed on the live server.**
 
-The initial documentation scaffold is on `main`. The first .NET plugin project targeting Jellyfin Server 12.4 is being developed on the `develop` branch.
+The `develop` branch currently contains the plugin, local SQLite playback capture, statistics, admin preview/export endpoints, and a responsive standalone HTML renderer. CI builds and unit tests are passing. The next milestone is packaging a validation build and a small, reversible test on the target Jellyfin server.
 
-## Planned principles
+## Features implemented
 
-- Individual statistics per Jellyfin user; never mix users' private viewing data.
-- Administrator-controlled year and user selection.
-- Local storage, with SQLite planned in the plugin data directory.
-- Standalone responsive HTML exports designed to work offline.
-- Clear distinction between captured, imported and estimated historical data.
-- No additional Docker service required.
+- Local SQLite storage in the plugin data directory; no extra Docker container.
+- Tracking toggle disabled by default; data capture begins only after enabling it.
+- Per-user annual report; user activity is isolated.
+- Films and TV episodes only (other item types are excluded from recap totals).
+- Stats for playback time/counts, monthly activity, top films and series, genres, decades, UTC patterns, active days/streaks, completion, repeats and personal records.
+- Offline HTML export with optional embedded artwork.
+- Admin-only configuration, preview and export.
 
 ## Compatibility
 
-The initial project targets Jellyfin Server 12.4 and .NET 10, using Jellyfin 12.4.0 reference packages. Compatibility will be confirmed by CI and testing before any installation instructions are published.
+Built against Jellyfin Server 12.4.0 API packages and .NET 10. The target server is Jellyfin 12.4 running in Docker on Synology. Compatibility and event capture still require live-server validation before installation is considered safe.
+
+## Known limitations
+
+- No retroactive history; capture starts when the plugin is installed and tracking is enabled.
+- Time/day/hour groupings use UTC.
+- Event behavior, report totals, and HTML export have not yet been validated against a real Jellyfin server.
+- No stable release or public plugin repository manifest yet.
 
 ## Development
 
-See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) for the roadmap and [src/Jellyfin.Plugin.ElArcaWrapped/README.md](src/Jellyfin.Plugin.ElArcaWrapped/README.md) for source status.
+See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) for progress and [docs/REAL_SERVER_VALIDATION.md](docs/REAL_SERVER_VALIDATION.md) for the cautious live-server test checklist.
 
-**Do not install this development scaffold on a live server.**
+**Do not install on the production server until the validation milestone is ready and the user is explicitly guided through it.**
 
 ## License
 
-GPL-3.0-or-later (license text to be added before distribution).
+License selection and distribution files are still pending.
