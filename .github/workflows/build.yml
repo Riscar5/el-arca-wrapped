@@ -27,3 +27,17 @@ jobs:
 
       - name: Run tests
         run: dotnet test tests/Jellyfin.Plugin.ElArcaWrapped.Tests/Jellyfin.Plugin.ElArcaWrapped.Tests.csproj --configuration Release --no-restore
+
+      - name: Package validation build
+        uses: oddstr13/jellyfin-plugin-repository-manager@9497a0a499416cc572ed2e07a391d9f943a37b4d
+        id: jprm
+        with:
+          dotnet-target: net10.0
+
+      - name: Upload validation package
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: el-arca-wrapped-validation-package
+          path: ${{ steps.jprm.outputs.artifact }}
+          retention-days: 14
+          if-no-files-found: error
