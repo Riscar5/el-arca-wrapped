@@ -18,6 +18,7 @@ Create a personalized, story-driven annual viewing recap for each Jellyfin user.
 - SQLite persistence in the plugin data directory, including idempotent schema upgrades.
 - Playback start/progress/stop event consumer and configurable capture.
 - Session ID handling: use Jellyfin's session ID where present; otherwise create a unique ID at playback start and reuse it for progress/stop events.
+- Playback persistence writes are serialized to reduce races between concurrent event updates; fallback client grouping ignores blank device/client identifiers.
 - Watched-time estimation from media-position deltas, excluding paused intervals and rejecting large forward seek jumps; elapsed-time/runtime bounds help prevent inflated values.
 - User/year-filtered statistics: total plays and minutes, films/episodes/series, unique titles, active days and streak, monthly activity, top rankings, genres, decades, UTC hour/weekday patterns, completion rate, repeat plays, longest play/day and coverage dates.
 - Regression tests for calculations, UTC/year boundaries, user isolation, repeated sessions, migrations and fallback session-ID grouping.
