@@ -36,7 +36,7 @@ Built against Jellyfin Server 12.4.0 API packages and .NET 10. The target server
 
 ## Development
 
-See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) for progress and [docs/REAL_SERVER_VALIDATION.md](docs/REAL_SERVER_VALIDATION.md) for the cautious live-server test checklist.
+See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) for progress, [docs/REAL_SERVER_VALIDATION.md](docs/REAL_SERVER_VALIDATION.md) for the live-server test checklist, and [docs/MOBILE_VALIDATION_AND_ROLLBACK.md](docs/MOBILE_VALIDATION_AND_ROLLBACK.md) for phone-friendly package download and rollback steps.
 
 **Do not enable tracking until the administrator has reviewed the configuration page and is ready to perform the short validation test.**
 
