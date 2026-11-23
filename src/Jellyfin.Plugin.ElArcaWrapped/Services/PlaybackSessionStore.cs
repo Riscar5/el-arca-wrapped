@@ -10,6 +10,13 @@ namespace Jellyfin.Plugin.ElArcaWrapped.Services;
 /// </summary>
 public sealed class PlaybackSessionStore
 {
+    static PlaybackSessionStore()
+    {
+        // Microsoft.Data.Sqlite.Core deliberately leaves provider initialization to the host.
+        // Initialize the bundled e_sqlite3 provider before the first connection is opened.
+        SQLitePCL.Batteries_V2.Init();
+    }
+
     private readonly string _connectionString;
     private readonly string _databasePath;
     private readonly SemaphoreSlim _initializationLock = new(1, 1);
