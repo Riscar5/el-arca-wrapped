@@ -65,11 +65,11 @@ public sealed class PlaybackSessionStore
         }
 
         var item = eventArgs.Item;
+        // PlaySessionId identifies a playback, whereas Session.Id identifies the
+        // connected client session and can span many separate playbacks. Never use
+        // the latter as a database playback key: replaying the same item could merge
+        // distinct viewing sessions into one record.
         var knownPlaySessionId = eventArgs.PlaySessionId;
-        if (string.IsNullOrWhiteSpace(knownPlaySessionId))
-        {
-            knownPlaySessionId = eventArgs.Session?.Id;
-        }
 
         var usersKey = string.Join(",", eventArgs.Users.Select(user => user.Id.ToString("N")).OrderBy(value => value, StringComparer.Ordinal));
         var clientKey = new[] { eventArgs.DeviceId, eventArgs.DeviceName, eventArgs.ClientName }
