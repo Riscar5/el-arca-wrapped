@@ -11,5 +11,10 @@ category: "General"
 owner: "Riscar5"
 artifacts:
 - "Jellyfin.Plugin.ElArcaWrapped.dll"
+- "Microsoft.Data.Sqlite.dll"
+- "SQLitePCLRaw.batteries_v2.dll"
+- "SQLitePCLRaw.core.dll"
+- "SQLitePCLRaw.provider.e_sqlite3.dll"
 changelog: >
-  Development validation build. Not yet validated on a live Jellyfin server.
+  Development validation build. Includes SQLite managed dependencies; Linux x64 native
+  SQLite runtime is added during CI packaging. Not yet validated on a live Jellyfin server.
