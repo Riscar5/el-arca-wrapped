@@ -6,9 +6,11 @@ The report is designed to feel like a yearly recap: viewing time, films and epis
 
 ## Project status
 
-**Development build — not yet validated or installed on the live server.**
+**Validation package built — live Jellyfin testing is the remaining major milestone.**
 
-The `develop` branch currently contains the plugin, local SQLite playback capture, statistics, admin preview/export endpoints, and a responsive standalone HTML renderer. CI builds and unit tests are passing. The next milestone is packaging a validation build and a small, reversible test on the target Jellyfin server.
+The `develop` branch contains playback capture, local SQLite persistence, statistics, admin preview/export endpoints, and a responsive standalone HTML renderer. The latest CI run passed compilation, all 28 automated tests, package generation, SQLite dependency bundling, and package-content verification.
+
+A validation ZIP is generated for Linux x64, including the managed SQLite assemblies and native `libe_sqlite3.so`. It is intended for the target Synology x86-64 server. It is not a stable release and has not yet been tested inside a live Jellyfin instance.
 
 ## Features implemented
 
@@ -19,23 +21,24 @@ The `develop` branch currently contains the plugin, local SQLite playback captur
 - Stats for playback time/counts, monthly activity, top films and series, genres, decades, UTC patterns, active days/streaks, completion, repeats and personal records.
 - Offline HTML export with optional embedded artwork.
 - Admin-only configuration, preview and export.
+- Packaged SQLite managed dependencies and Linux x64 native runtime.
 
 ## Compatibility
 
-Built against Jellyfin Server 12.4.0 API packages and .NET 10. The target server is Jellyfin 12.4 running in Docker on Synology. Compatibility and event capture still require live-server validation before installation is considered safe.
+Built against Jellyfin Server 12.4.0 API packages and .NET 10. The target server is Jellyfin 12.4 running in Docker on Synology. The current validation package targets Linux x64. Actual event capture, configuration-page behavior, and export still require a reversible live-server test.
 
 ## Known limitations
 
 - No retroactive history; capture starts when the plugin is installed and tracking is enabled.
 - Time/day/hour groupings use UTC.
-- Event behavior, report totals, and HTML export have not yet been validated against a real Jellyfin server.
+- Playback event timing, pause/resume/seek behavior, report totals, and offline HTML have not yet been validated against a real Jellyfin server.
 - No stable release or public plugin repository manifest yet.
 
 ## Development
 
 See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) for progress and [docs/REAL_SERVER_VALIDATION.md](docs/REAL_SERVER_VALIDATION.md) for the cautious live-server test checklist.
 
-**Do not install on the production server until the validation milestone is ready and the user is explicitly guided through it.**
+**Do not enable tracking until the administrator has reviewed the configuration page and is ready to perform the short validation test.**
 
 ## License
 
