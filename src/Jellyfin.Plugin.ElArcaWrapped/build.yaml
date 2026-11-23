@@ -1,0 +1,15 @@
+name: "El Arca Wrapped"
+guid: "9f5b2d8e-4c31-4a76-9d12-6b8e0f3a51c7"
+version: "0.1.0.0"
+targetAbi: "12.4.0.0"
+framework: "net10.0"
+overview: "Personal annual viewing recap for Jellyfin users."
+description: >
+  Generates individual annual viewing recaps with statistics and a self-contained
+  HTML export. Development build; live-server validation is still pending.
+category: "General"
+owner: "Riscar5"
+artifacts:
+- "Jellyfin.Plugin.ElArcaWrapped.dll"
+changelog: >
+  Development validation build. Not yet validated on a live Jellyfin server.
