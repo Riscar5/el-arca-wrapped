@@ -13,6 +13,7 @@ public sealed class PlaybackSessionStore
     private readonly string _connectionString;
     private readonly string _databasePath;
     private readonly SemaphoreSlim _initializationLock = new(1, 1);
+    private readonly SemaphoreSlim _recordLock = new(1, 1);
     private readonly FallbackPlaybackSessionIdResolver _fallbackSessionIds = new();
     private bool _initialized;
 
@@ -40,6 +41,23 @@ public sealed class PlaybackSessionStore
         bool isStopped = false,
         bool playedToCompletion = false,
         bool isStart = false)
+    {
+        await _recordLock.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            await RecordCoreAsync(eventArgs, isStopped, playedToCompletion, isStart).ConfigureAwait(false);
+        }
+        finally
+        {
+            _recordLock.Release();
+        }
+    }
+
+    private async Task RecordCoreAsync(
+        PlaybackProgressEventArgs eventArgs,
+        bool isStopped,
+        bool playedToCompletion,
+        bool isStart)
     {
         if (eventArgs.Item is null || eventArgs.Item.IsThemeMedia || eventArgs.Users.Count == 0)
         {
