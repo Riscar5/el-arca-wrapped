@@ -35,6 +35,12 @@ jobs:
           path: ./src/Jellyfin.Plugin.ElArcaWrapped
           dotnet-target: net10.0
 
+      - name: Publish Linux x64 SQLite native runtime
+        run: dotnet publish src/Jellyfin.Plugin.ElArcaWrapped/Jellyfin.Plugin.ElArcaWrapped.csproj --configuration Release --framework net10.0 --runtime linux-x64 --self-contained false --output "$RUNNER_TEMP/el-arca-linux-x64"
+
+      - name: Add SQLite native runtime and verify package
+        run: python3 .github/scripts/package_linux_sqlite.py "${{ steps.jprm.outputs.artifact }}" "$RUNNER_TEMP/el-arca-linux-x64/libe_sqlite3.so"
+
       - name: Upload validation package
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
