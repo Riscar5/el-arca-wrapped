@@ -16,6 +16,9 @@ public static class WrappedStatisticsCalculator
         var records = source
             .Where(r => string.Equals(r.UserId, userId, StringComparison.Ordinal))
             .Where(r => r.StartedAtUtc.UtcDateTime.Year == year)
+            // This recap is for films and TV episodes only; other playback item types
+            // (music, trailers, extras, etc.) must not inflate the viewing totals.
+            .Where(r => IsMovie(r) || IsEpisode(r))
             .OrderBy(r => r.StartedAtUtc.UtcDateTime)
             .ToArray();
 
