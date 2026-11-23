@@ -32,6 +32,16 @@ jobs:
           path: src/Jellyfin.Plugin.ElArcaWrapped/bin/Release/net10.0/
           retention-days: 7
 
+      - name: Publish linux-x64 output to inspect runtime dependencies
+        run: dotnet publish src/Jellyfin.Plugin.ElArcaWrapped/Jellyfin.Plugin.ElArcaWrapped.csproj --configuration Release --runtime linux-x64 --self-contained false --output ./artifacts/publish
+
+      - name: Upload linux-x64 publish output
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: el-arca-wrapped-linux-x64-publish
+          path: artifacts/publish/
+          retention-days: 7
+
       - name: Run tests
         run: dotnet test tests/Jellyfin.Plugin.ElArcaWrapped.Tests/Jellyfin.Plugin.ElArcaWrapped.Tests.csproj --configuration Release --no-restore
 
