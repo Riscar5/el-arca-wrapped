@@ -32,6 +32,7 @@ jobs:
         uses: oddstr13/jellyfin-plugin-repository-manager@9497a0a499416cc572ed2e07a391d9f943a37b4d
         id: jprm
         with:
+          path: ./src/Jellyfin.Plugin.ElArcaWrapped
           dotnet-target: net10.0
 
       - name: Upload validation package
