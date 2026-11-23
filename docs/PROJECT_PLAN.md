@@ -2,65 +2,61 @@
 
 ## Product goal
 
-Build a Jellyfin plugin that generates a personalized annual viewing recap for each Jellyfin user, with a polished, story-driven visual presentation inspired by annual music recaps.
-
-An administrator selects a year and one or more users, previews each recap and exports individual standalone HTML files. A ZIP batch export may be added later.
+Create a personalized, story-driven annual viewing recap for each Jellyfin user. Administrators select a user and year, preview the report, and export a standalone HTML file. Batch ZIP export may be considered later.
 
 ## Privacy and data integrity
 
-- Calculate and export each user's data separately.
-- Never expose one user's viewing activity in another user's recap.
-- Keep processing local to the Jellyfin server.
-- Do not invent narratives or statistics when data is missing.
-- Label data coverage and distinguish plugin-captured, imported and estimated history.
-- Historical playback detail may be unavailable before the plugin is installed.
+- Process and store playback data locally on the Jellyfin server.
+- Keep each user's calculations and exports isolated.
+- Clearly label data coverage; no plugin-captured history exists before installation unless a future import feature is implemented.
+- Never fabricate statistics or insights when data is missing.
+- Tracking is disabled by default and should remain off until the administrator has reviewed the settings.
 
-## Planned architecture
+## Implemented on `develop`
 
-- C# Jellyfin plugin, targeting the server's verified supported .NET/Jellyfin API versions.
-- Playback event capture for start, progress, pause/resume, stop and completion.
-- Use Jellyfin's existing primary artwork for films and series. For exported standalone HTML, fetch and embed thumbnail data (data URI) so images remain available offline; avoid depending on an authenticated Jellyfin URL in the final report.
-- SQLite database stored in the plugin data directory.
-- Statistics service for yearly aggregation.
-- A user-scoped, serializable report data contract now packages display name, year, generated timestamp, and statistics for the future renderer.
-- First self-contained HTML renderer implemented: mobile-responsive layout, monthly activity bars, top movie/series lists, personal records, coverage note, and HTML-escaped user/item text. New insight sections show genres, movie decades, UTC viewing-hour patterns, and weekdays using responsive bar visualizations. The HTML export now attempts to embed small JPEG primary-image thumbnails for ranked movies and series; missing, unsupported or oversized artwork falls back to text-only ranking rows.
-- Admin-only REST endpoints added for listing users, previewing a selected annual report, and downloading the standalone HTML export.
-- Plugin configuration page now includes user/year selection and preview/download actions. The controller, admin-only API endpoints, UI integration, export flow, and embedded artwork path have passed CI; validation on a real Jellyfin server remains pending.
-- Administrator interface for year/user selection, preview and export.
-- Standalone responsive HTML with embedded CSS, JavaScript and required data; offline use is a core requirement.
+- Jellyfin plugin project, CI build and automated test project.
+- SQLite persistence in the plugin data directory, including idempotent schema upgrades.
+- Playback start/progress/stop event consumer and configurable capture.
+- Session ID handling: use Jellyfin's session ID where present; otherwise create a unique ID at playback start and reuse it for progress/stop events.
+- Watched-time estimation from media-position deltas, excluding paused intervals and rejecting large forward seek jumps; elapsed-time/runtime bounds help prevent inflated values.
+- User/year-filtered statistics: total plays and minutes, films/episodes/series, unique titles, active days and streak, monthly activity, top rankings, genres, decades, UTC hour/weekday patterns, completion rate, repeat plays, longest play/day and coverage dates.
+- Regression tests for calculations, UTC/year boundaries, user isolation, repeated sessions, migrations and fallback session-ID grouping.
+- Responsive, Spanish-language, standalone HTML renderer with embedded CSS, rankings, visual insight sections and escaping for user/item text.
+- Export embeds bounded-size JPEG artwork when Jellyfin can process it; missing/invalid/oversized art safely falls back to poster placeholders.
+- Series rankings prefer parent-series artwork and fall back to representative episode artwork.
+- Admin-only API endpoints to list users, preview reports and export HTML. User-scoped data retrieval and admin authorization audited.
+- Admin configuration UI for tracking control, user/year selection, preview and export.
+- CI has passed on the latest `develop` commit at the time this plan was updated.
 
-## Planned statistics
+## Current known limitations
 
-Viewing hours and counts; films, episodes and series; active days; viewing patterns by month/day/hour; averages and streaks; top films and series; genres; decades; languages/countries when metadata is reliable; replays; completions; marathons and personal records.
+- Real Jellyfin server behavior has not yet been validated. Event timing, pause/resume/seek behavior and SQLite capture must be tested against the target server/client.
+- Reports use UTC for month/day/hour groupings. Local timezone support is not yet wired to server/user settings.
+- Capture only starts after the plugin is installed and tracking is enabled; no retroactive library history.
+- No public release, package repository, or installation on the NAS yet.
 
-## Milestones
+## Next milestone: reversible live-server validation
 
-### Implemented on `develop` (in progress)
+The detailed checklist is in [REAL_SERVER_VALIDATION.md](REAL_SERVER_VALIDATION.md). The sequence is intentionally cautious:
 
-- SQLite playback-session capture scaffold and database initialization tests.
-- First pure annual-statistics calculator, separated from Jellyfin event APIs for easier testing.
-- Playback rows include metadata columns for genre, year, season/episode numbers, and a relative primary-image endpoint. The SQLite initializer adds these columns idempotently for existing installations. Standalone export now embeds bounded JPEG thumbnails when the server can process them.
-- Initial metrics: play count, watched minutes (runtime-capped), movie/episode counts, unique movies/series, active days, longest consecutive-day streak, completions, monthly activity, top movies/series and genres.
-- Automated tests cover user isolation, year filtering, repeated plays, runtime capping, empty years, monthly/streak calculations, completion rate, daily totals, and UTC hour/weekday distributions. CI validation is required before these metrics are considered verified.
-- Expanded metrics: average minutes per play, repeated plays (repeat sessions beyond the first play of each item), longest single-day viewing time, longest individual play (with item name), completion rate, start-time patterns by hour and weekday, film activity by decade, and captured activity coverage dates/months.
-- Hour and weekday breakdowns are explicitly UTC. Year selection, month/day/hour/weekday buckets, active-day grouping and streak calculations normalize timestamps to UTC. Reports must not label them as local time until the administrator's Jellyfin/server timezone is wired in.
-- Regression tests now cover UTC year-boundary offsets and elapsed-duration fallback with runtime capping. Database migration tests verify legacy-schema upgrades are idempotent and preserve existing rows.
+1. Verify Jellyfin version and compatibility before installation.
+2. Back up configuration/data and note the current Docker image/tag.
+3. Install a validation build only; leave tracking disabled initially.
+4. Confirm configuration UI and admin/non-admin endpoint permissions.
+5. Enable tracking for a short test, exercise play/pause/resume/seek/stop, then disable it.
+6. Inspect report counts/time, user isolation, logs, and standalone HTML offline behavior.
+7. Fix any discrepancies and repeat the test before deciding on a release.
 
+## Later improvements (after live validation)
 
-
-**Next priorities:** fallback session-ID grouping now generates a unique ID on each playback start and reuses it for progress/stop events when Jellyfin omits the ID; unit tests cover the resolver. Series ranking artwork now resolves the parent Series primary image when available, falling back to episode artwork if Jellyfin cannot resolve it. Next: use the real-server checklist in `docs/REAL_SERVER_VALIDATION.md` for a small reversible capture test. A code audit confirmed admin-only preview/export, user-scoped statistics, UTC coverage labeling, and offline HTML embedding; event-store integration still requires validation on a live Jellyfin server. Tracking remains disabled by default; no NAS installation yet.
-
-1. Verify Jellyfin server version and official plugin template/API compatibility.
-2. Create the compilable plugin project and CI build.
-3. Implement playback event capture and SQLite persistence.
-4. Implement per-user, per-year statistics and coverage reporting.
-5. Build the administrator interface and preview.
-6. Create the visual recap and offline HTML export.
-7. Test on the target Synology Docker deployment and publish a release.
+- Resolve timezone display/grouping to local Jellyfin/server timezone, with explicit setting or reliable source.
+- Add stronger capture integration tests and artwork tests where practical.
+- Improve report storytelling and visual polish based on mobile review.
+- Prepare plugin manifest/package and repository installation instructions.
+- Only then consider a stable release and installation on the production NAS.
 
 ## Initial constraints
 
-- No additional Docker container or external service.
-- No Telegram bot in the initial release; exports can be shared manually.
-- No user comparisons or PDF export in the initial scope.
-- Favor reversible tests and avoid modifying Jellyfin's existing data.
+- No extra Docker container or external service.
+- No Telegram bot, user comparisons, or PDF export in the initial scope.
+- Prefer reversible tests; avoid changes to Jellyfin media and existing metadata.
