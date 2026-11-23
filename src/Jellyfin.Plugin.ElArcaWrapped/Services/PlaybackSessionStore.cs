@@ -72,7 +72,8 @@ public sealed class PlaybackSessionStore
         }
 
         var usersKey = string.Join(",", eventArgs.Users.Select(user => user.Id.ToString("N")).OrderBy(value => value, StringComparer.Ordinal));
-        var clientKey = eventArgs.DeviceId ?? eventArgs.DeviceName ?? eventArgs.ClientName ?? "unknown-client";
+        var clientKey = new[] { eventArgs.DeviceId, eventArgs.DeviceName, eventArgs.ClientName }
+            .FirstOrDefault(value => !string.IsNullOrWhiteSpace(value)) ?? "unknown-client";
         var fallbackKey = $"{usersKey}|{clientKey}|{item.Id:N}";
         var playSessionId = _fallbackSessionIds.Resolve(fallbackKey, knownPlaySessionId, isStart, isStopped);
 
