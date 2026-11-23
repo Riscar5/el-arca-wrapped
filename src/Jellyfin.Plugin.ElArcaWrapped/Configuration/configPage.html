@@ -101,6 +101,9 @@
                 fetchWrappedHtml().then(function (html) {
                     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
                     const url = URL.createObjectURL(blob);
+                    previewWindow.addEventListener('load', function () {
+                        URL.revokeObjectURL(url);
+                    }, { once: true });
                     previewWindow.location.href = url;
                     document.querySelector('#ReportStatus').textContent = 'Vista previa generada.';
                 }).catch(function (error) {
@@ -118,7 +121,7 @@
                     anchor.href = url;
                     anchor.download = 'El-Arca-Wrapped-' + document.querySelector('#ReportYear').value + '.html';
                     anchor.click();
-                    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+                    setTimeout(function () { URL.revokeObjectURL(url); }, 30000);
                     document.querySelector('#ReportStatus').textContent = 'Descarga iniciada.';
                 }).catch(function (error) {
                     document.querySelector('#ReportStatus').textContent = error.message || 'No se pudo descargar el informe.';
