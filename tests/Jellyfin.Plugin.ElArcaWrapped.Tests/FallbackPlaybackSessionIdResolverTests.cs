@@ -36,4 +36,19 @@ public sealed class FallbackPlaybackSessionIdResolverTests
         Assert.Equal(known, resolver.Resolve("key", known, isStart: true, isStopped: false));
         Assert.Equal(known, resolver.Resolve("key", null, isStart: false, isStopped: false));
     }
+
+    [Fact]
+    public void LateKnownSessionIdDoesNotSplitPlaybackStartedWithoutOne()
+    {
+        var resolver = new FallbackPlaybackSessionIdResolver();
+        var fallback = resolver.Resolve("key", null, isStart: true, isStopped: false);
+
+        var progressWithLateKnownId = resolver.Resolve(
+            "key", "jellyfin-session", isStart: false, isStopped: false);
+        var stopWithKnownId = resolver.Resolve(
+            "key", "jellyfin-session", isStart: false, isStopped: true);
+
+        Assert.Equal(fallback, progressWithLateKnownId);
+        Assert.Equal(fallback, stopWithKnownId);
+    }
 }
