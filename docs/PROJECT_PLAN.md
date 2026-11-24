@@ -90,3 +90,10 @@ The detailed checklist is in [REAL_SERVER_VALIDATION.md](REAL_SERVER_VALIDATION.
 - Source review found no additional compile-time or obvious structural blocker. The fallback grouping can still be ambiguous if the same client starts overlapping playback of the same item while Jellyfin omits PlaySessionId; this remains a low-frequency live-test edge case.
 - Automated tests currently cover the resolver, time calculations, schema/migrations, statistics and HTML escaping, but do not fully simulate Jellyfin's real event delivery into the store. The first server test must therefore verify actual event capture, pause/resume, seek, stop and report totals.
 - Configuration UI and preview/download logic have been source-reviewed but not exercised in a live Jellyfin browser. No installation or tracking activation has been performed.
+## Latest branch package refresh (2026-11-24)
+
+- Documentation-only commits 2634a9d7 and f578c874 each passed GitHub Actions. The current branch head is f578c8744f2a4126dc315733de8839b52f6b39f1.
+- Latest artifact is from run 45341580856, artifact ID 14896780243, named el-arca-wrapped-validation-package; it expires 2026-12-08.
+- Downloaded and inspected the latest outer and inner ZIP layers. Outer SHA-256: 00f3c3df5e263bf7603c7fcfe3b2546df996fe2b8233ccdcfc5b1067e164d88e. Inner plugin ZIP SHA-256: 6655f07be0c875f208ccb97b1ad8a5598d5195875b4b823e2177f81a4fe953ae.
+- Package contains Jellyfin.Plugin.ElArcaWrapped.dll, meta.json, Microsoft.Data.Sqlite.dll, SQLitePCLRaw managed dependencies and libe_sqlite3.so. Native SQLite binary hash remains a5e8aed525023e6c209d37d3e762e2e76ed3a830464569a419abfc3cf12d7a6c; ELF e_machine is x86-64.
+- Metadata timestamp is 2026-11-24T06:35:51Z, version 0.1.0.0, target ABI 12.4.0.0. This is the freshest validation package; it remains a development build, not a stable release.
