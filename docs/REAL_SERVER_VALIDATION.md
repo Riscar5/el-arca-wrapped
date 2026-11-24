@@ -51,3 +51,6 @@ Capture: Jellyfin version, plugin build/commit, client/device used, test item ty
 ## Target server details confirmed (2026-11-23)
 
 The administrator confirmed Jellyfin 12.4 and Docker image reference `jellyfin/jellyfin:latest`. This matches the plugin's declared 12.4.0.0 target ABI. Because `latest` can move, the exact running image ID/digest must be recorded before any plugin installation or container recreation; do not pull a newer image as part of this test.
+## Confirmed image identifier (2026-11-24)
+
+The administrator additionally supplied the running image details: jellyfin/jellyfin:latest, Jellyfin 12.4, image creation date 2026-10-26, size 1.6 GiB, and short image ID 995797bf8759. This is a short identifier, not a full immutable digest. Before installation or container recreation, inspect and record the full image ID/digest from Container Manager; do not pull or update latest as part of validation.
