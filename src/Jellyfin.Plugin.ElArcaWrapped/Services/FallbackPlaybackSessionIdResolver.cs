@@ -10,15 +10,27 @@ internal sealed class FallbackPlaybackSessionIdResolver
     internal string Resolve(string key, string? knownSessionId, bool isStart, bool isStopped)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
+
         string resolved;
-        if (!string.IsNullOrWhiteSpace(knownSessionId))
+        if (isStart)
         {
-            resolved = knownSessionId;
+            // A new start always begins a new playback identity, even if a stale
+            // fallback entry remains after a client disconnected without a stop event.
+            resolved = !string.IsNullOrWhiteSpace(knownSessionId)
+                ? knownSessionId
+                : Guid.NewGuid().ToString("N");
             _sessionIds[key] = resolved;
         }
-        else if (isStart)
+        else if (_sessionIds.TryGetValue(key, out var existingSessionId))
         {
-            resolved = Guid.NewGuid().ToString("N");
+            // Keep the identity chosen at start if later events begin supplying a
+            // PlaySessionId. Switching IDs mid-playback would split one viewing
+            // session into two database records and inflate play counts.
+            resolved = existingSessionId;
+        }
+        else if (!string.IsNullOrWhiteSpace(knownSessionId))
+        {
+            resolved = knownSessionId;
             _sessionIds[key] = resolved;
         }
         else
